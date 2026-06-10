@@ -7,18 +7,20 @@ import SectionHeader from "../ui/SectionHeader";
 import { Sparkles, Target, Film, Laptop, Users, Check, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
-interface ServiceItem {
+export type Feature = string;
+
+export interface ServiceItem {
   id: string;
   title: string;
   tagline: string;
   description: string;
-  features: string[];
+  features: Feature[];
   metric_label: string | null;
   metric_value: string | null;
   color: string;
 }
 
-interface ServicesProps {
+export interface ServicesProps {
   services?: ServiceItem[];
 }
 
@@ -47,10 +49,10 @@ export default function Services({ services = [] }: ServicesProps) {
   if (services.length === 0) return null;
 
   // Determine repetition count based on list size for a smooth marquee loop
-  const repeatCount = services.length < 3 ? 8 : (services.length < 6 ? 4 : 2);
-  const repeatedServices = Array(repeatCount).fill(services).flat();
-  const translationPercentage = -(100 / repeatCount);
-  const animationDuration = services.length * 8; // 8s per item in a single set
+  const repeatCount: number = services.length < 3 ? 8 : (services.length < 6 ? 4 : 2);
+  const repeatedServices: ServiceItem[] = Array(repeatCount).fill(services).flat() as ServiceItem[];
+  const translationPercentage: number = -(100 / repeatCount);
+  const animationDuration: number = services.length * 8; // 8s per item in a single set
 
   return (
     <section ref={containerRef} className="relative bg-[#111111] py-space-6xl border-b border-white/5 overflow-hidden">
@@ -79,7 +81,7 @@ export default function Services({ services = [] }: ServicesProps) {
               "--marquee-duration": `${animationDuration}s`,
             } as React.CSSProperties}
           >
-            {repeatedServices.map((service, index) => {
+            {repeatedServices.map((service: ServiceItem, index: number) => {
               const IconComponent = getIcon(service.id);
               return (
                 <Link
@@ -138,7 +140,7 @@ export default function Services({ services = [] }: ServicesProps) {
                   <div className="mt-space-lg pt-space-md border-t border-white/5 flex flex-col gap-space-sm">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-white-base/35 font-mono">Competencies</p>
                     <ul className="flex flex-col gap-2.5">
-                      {service.features.map((feature, fIdx) => (
+                      {service.features.map((feature: Feature, fIdx: number) => (
                         <li key={fIdx} className="flex items-center gap-2.5 text-xs text-white-base/70">
                           <Check className="h-3.5 w-3.5 text-green-500 shrink-0" />
                           {feature}
