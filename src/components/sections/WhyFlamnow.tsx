@@ -112,7 +112,7 @@ export default function WhyFlamnow({ valueProps = [] }: WhyFlamnowProps) {
                           boxShadow: `0 0 15px ${theme.glow}`
                         }}
                       >
-                        <Icon className="h-6 w-6" style={{ filter: `drop-shadow(0 0 8px ${theme.color}80)` }} />
+                        <span style={{ filter: `drop-shadow(0 0 8px ${theme.color}80)` }}><Icon className="h-6 w-6" /></span>
                       </div>
                       <span className="font-mono text-3xl font-black text-transparent stroke-text" style={{ WebkitTextStroke: "1px rgba(255, 255, 255, 0.15)" }}>
                         {val.num}
