@@ -10,9 +10,14 @@ interface ProjectPageProps {
   params: Promise<{ slug: string }>;
 }
 
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+
 export async function generateStaticParams() {
   try {
-    const supabase = await createClient();
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     const { data: projects } = await supabase.from("projects").select("id");
     return (projects || []).map((project) => ({
       slug: project.id,
