@@ -6,6 +6,7 @@ import { useCursor } from "@/context/CursorContext";
 
 export default function CustomCursor() {
   const { cursorType, cursorText } = useCursor();
+  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
 
   // Separate motion values for dot and ring to enable trailing effect
@@ -23,6 +24,9 @@ export default function CustomCursor() {
   const ringYSpring = useSpring(ringY, { damping: 32, stiffness: 280, mass: 0.6 });
 
   useEffect(() => {
+    // Mark as mounted so we can safely access browser APIs
+    setMounted(true);
+
     // Check if it's a mobile/touch device
     const checkDevice = () => {
       const mobile = window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
@@ -47,7 +51,9 @@ export default function CustomCursor() {
     };
   }, [dotX, dotY, ringX, ringY]);
 
-  if (isMobile || cursorType === "hide") return null;
+  // Prevent rendering during SSR and first client paint to avoid hydration mismatch
+  // Only render cursor after mount confirms we're on a non-mobile device
+  if (!mounted || isMobile || cursorType === "hide") return null;
 
   // Variants for Outer Ring
   const ringVariants = {

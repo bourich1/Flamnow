@@ -92,47 +92,50 @@ export default function Hero({ data }: HeroProps) {
       // Animate progress bar inside the Analytics card
       .to(".hero-progress-bar", { width: "80%", duration: 1.6, ease: "power3.out" }, "-=0.6");
 
-    // 3. Infinite Floating Cycles (GSAP loops utilize requestAnimationFrame & subpixel rendering)
-    gsap.to(".hero-float-1", {
-      y: -14,
-      rotation: 1,
-      duration: 5.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 0.2
-    });
+    // 3. Infinite Floating Cycles (GSAP loops — only on md+ screens, lightweight transforms)
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      gsap.to(".hero-float-1", {
+        y: -14,
+        rotation: 1,
+        duration: 5.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: 0.2
+      });
 
-    gsap.to(".hero-float-2", {
-      y: 14,
-      rotation: -1,
-      duration: 6.5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 0.6
-    });
+      gsap.to(".hero-float-2", {
+        y: 14,
+        rotation: -1,
+        duration: 6.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: 0.6
+      });
 
-    gsap.to(".hero-float-3", {
-      y: -10,
-      rotation: 1.5,
-      duration: 6,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      delay: 1
+      gsap.to(".hero-float-3", {
+        y: -10,
+        rotation: 1.5,
+        duration: 6,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+        delay: 1
+      });
     });
 
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="relative min-h-screen w-full bg-bg-base flex items-center pt-28 pb-16 px-6 md:px-12">
+    <section ref={containerRef} className="relative min-h-screen w-full bg-bg-base flex items-center pt-28 pb-16 overflow-hidden">
       {/* Background Visual Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff02_1px,transparent_1px),linear-gradient(to_bottom,#ffffff02_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Decorative Orbs */}
-      <div className="absolute top-1/4 left-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-primary-base/5 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 -z-10 h-[400px] w-[400px] rounded-full bg-white-base/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -z-10 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-primary-base/5 blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 -z-10 h-[250px] w-[250px] md:h-[400px] md:w-[400px] rounded-full bg-white-base/5 blur-[120px] pointer-events-none" />
 
       <Container className="relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl lg:gap-space-4xl items-center">
@@ -195,7 +198,7 @@ export default function Hero({ data }: HeroProps) {
 
           {/* Right Column: Honey Badger Mascot & Floating Marketing Cards */}
           <div
-            className="lg:col-span-6 relative min-h-[420px] sm:min-h-[520px] md:min-h-[580px] lg:min-h-[640px] w-full mt-8 lg:mt-0 select-none isolate"
+            className="lg:col-span-6 relative w-full min-h-[360px] sm:min-h-[480px] md:min-h-[580px] lg:min-h-[640px] mt-8 lg:mt-0 select-none isolate overflow-hidden"
             onMouseEnter={() => {
               setCursorType("text");
               setCursorText("FEARLESS");
@@ -212,66 +215,123 @@ export default function Hero({ data }: HeroProps) {
               fill="#ED3F27"
             />
 
-            {/* Spline 3D Robot — fills the right column */}
-            <div className="hero-mascot-container absolute inset-0 w-full h-full z-10">
+            {/* Spline 3D Robot — fills the right column on desktop, sized on mobile */}
+            <div className="hero-mascot-container relative md:absolute md:inset-0 w-full h-[360px] sm:h-[480px] md:h-full z-10">
               <SplineScene 
                 scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
                 className="w-full h-full"
+                fallbackSrc="/flamnow-logo.png"
               />
             </div>
 
-            {/* 1. Website Speed Card */}
-            {speedCardTitle && (
-              <div className="hero-float-1 absolute top-4 left-0 sm:left-4 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[200px]">
-                <div className="h-10 w-10 rounded-input bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 shrink-0 font-mono">
-                  <Cpu className="h-5 w-5" />
-                </div>
-                <div className="overflow-hidden">
-                  <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{speedCardTitle}</p>
-                  <p className="text-xs font-bold text-white-base truncate mt-0.5 font-mono">{speedCardValue}</p>
-                  {speedCardSub && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-ping" />
-                      <span className="text-[8px] font-mono text-green-400">{speedCardSub}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 2. Analytics Card */}
-            {roiCardTitle && (
-              <div className="hero-float-2 absolute top-16 right-0 sm:right-4 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[210px]">
-                <div className="h-10 w-10 rounded-input bg-primary-base/10 border border-primary-base/20 flex items-center justify-center text-primary-base shrink-0">
-                  <LineChart className="h-5 w-5" />
-                </div>
-                <div className="overflow-hidden w-full">
-                  <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{roiCardTitle}</p>
-                  <p className="text-xs font-black text-white-base truncate mt-0.5 font-mono">{roiCardValue}</p>
-                  <div className="w-full bg-white-base/10 h-1 rounded-full overflow-hidden mt-1.5">
-                    <div className="hero-progress-bar bg-primary-base h-full rounded-full" />
+            {/* DESKTOP: Floating Cards (md+) — absolutely positioned over Spline */}
+            <div className="hidden md:block">
+              {/* 1. Website Speed Card */}
+              {speedCardTitle && (
+                <div className="hero-float-1 absolute top-4 left-4 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[200px]">
+                  <div className="h-10 w-10 rounded-input bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 shrink-0 font-mono">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{speedCardTitle}</p>
+                    <p className="text-xs font-bold text-white-base truncate mt-0.5 font-mono">{speedCardValue}</p>
+                    {speedCardSub && (
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-ping" />
+                        <span className="text-[8px] font-mono text-green-400">{speedCardSub}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* 3. Ads Target Card */}
-            {ctrCardTitle && (
-              <div className="hero-float-3 absolute bottom-4 right-8 sm:right-16 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[190px]">
-                <div className="h-10 w-10 rounded-input bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
-                  <Target className="h-5 w-5" />
+              {/* 2. Analytics Card */}
+              {roiCardTitle && (
+                <div className="hero-float-2 absolute top-16 right-4 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[210px]">
+                  <div className="h-10 w-10 rounded-input bg-primary-base/10 border border-primary-base/20 flex items-center justify-center text-primary-base shrink-0">
+                    <LineChart className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden w-full">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{roiCardTitle}</p>
+                    <p className="text-xs font-black text-white-base truncate mt-0.5 font-mono">{roiCardValue}</p>
+                    <div className="w-full bg-white-base/10 h-1 rounded-full overflow-hidden mt-1.5">
+                      <div className="hero-progress-bar bg-primary-base h-full rounded-full" />
+                    </div>
+                  </div>
                 </div>
-                <div className="overflow-hidden">
-                  <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{ctrCardTitle}</p>
-                  <p className="text-xs font-bold text-white-base truncate mt-0.5 font-mono">{ctrCardValue}</p>
-                  {ctrCardSub && (
-                    <p className="text-[8px] font-mono text-cyan-400 mt-1 flex items-center gap-1">
-                      <Zap className="h-2.5 w-2.5 animate-bounce" /> {ctrCardSub}
-                    </p>
-                  )}
+              )}
+
+              {/* 3. Ads Target Card */}
+              {ctrCardTitle && (
+                <div className="hero-float-3 absolute bottom-4 right-16 z-20 bg-surface-base/80 border border-white-base/5 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-[190px]">
+                  <div className="h-10 w-10 rounded-input bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{ctrCardTitle}</p>
+                    <p className="text-xs font-bold text-white-base truncate mt-0.5 font-mono">{ctrCardValue}</p>
+                    {ctrCardSub && (
+                      <p className="text-[8px] font-mono text-cyan-400 mt-1 flex items-center gap-1">
+                        <Zap className="h-2.5 w-2.5 animate-bounce" /> {ctrCardSub}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* MOBILE: Stacked Cards (below md) — flows below Spline scene, no overlap */}
+            <div className="md:hidden flex flex-col gap-3 mt-4 px-1 relative z-20">
+              {speedCardTitle && (
+                <div className="bg-surface-base/90 border border-white-base/10 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-full">
+                  <div className="h-10 w-10 rounded-input bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 shrink-0">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{speedCardTitle}</p>
+                    <p className="text-xs font-bold text-white-base truncate mt-0.5">{speedCardValue}</p>
+                    {speedCardSub && (
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                        <span className="text-[8px] text-green-400">{speedCardSub}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {roiCardTitle && (
+                <div className="bg-surface-base/90 border border-white-base/10 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-full">
+                  <div className="h-10 w-10 rounded-input bg-primary-base/10 border border-primary-base/20 flex items-center justify-center text-primary-base shrink-0">
+                    <LineChart className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{roiCardTitle}</p>
+                    <p className="text-xs font-black text-white-base truncate mt-0.5">{roiCardValue}</p>
+                    <div className="w-full bg-white-base/10 h-1 rounded-full overflow-hidden mt-1.5">
+                      <div className="bg-primary-base h-full rounded-full" style={{ width: "80%" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {ctrCardTitle && (
+                <div className="bg-surface-base/90 border border-white-base/10 backdrop-blur-md p-4 rounded-card shadow-lg flex items-center gap-3 w-full">
+                  <div className="h-10 w-10 rounded-input bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                    <Target className="h-5 w-5" />
+                  </div>
+                  <div className="overflow-hidden flex-1 min-w-0">
+                    <p className="text-[10px] font-bold text-white-base/40 uppercase tracking-widest truncate">{ctrCardTitle}</p>
+                    <p className="text-xs font-bold text-white-base truncate mt-0.5">{ctrCardValue}</p>
+                    {ctrCardSub && (
+                      <p className="text-[8px] text-cyan-400 mt-1 flex items-center gap-1">
+                        <Zap className="h-2.5 w-2.5" /> {ctrCardSub}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>

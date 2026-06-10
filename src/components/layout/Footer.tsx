@@ -18,6 +18,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function Footer() {
   const { setCursorType } = useCursor();
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [siteName, setSiteName] = useState("Flamnow");
@@ -76,6 +77,9 @@ export default function Footer() {
       }
     }
     loadFooterData();
+
+    // Set current year only on client to avoid hydration mismatch with server-rendered dates
+    setCurrentYear(new Date().getFullYear());
   }, []);
 
   const isAdminRoute = pathname?.startsWith('/admin');
@@ -113,7 +117,7 @@ export default function Footer() {
   return (
     <footer className="relative bg-[#111111] pt-24 pb-12 border-t border-white/5 overflow-hidden">
       {/* Background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 -z-10 h-72 w-[600px] rounded-full bg-[#ED3F27]/5 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 -z-10 h-72 w-[350px] md:w-[600px] rounded-full bg-[#ED3F27]/5 blur-[100px] pointer-events-none" />
 
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
@@ -239,7 +243,7 @@ export default function Footer() {
 
         {/* Copyrights */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 pt-8 text-xs text-white/60">
-          <p>© {new Date().getFullYear()} FLAMNOW Agency Ltd. All rights reserved.</p>
+          <p>© {currentYear ?? '2026'} FLAMNOW Agency Ltd. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</Link>
             <Link href="#" className="hover:text-white transition-colors duration-200">Terms of Service</Link>

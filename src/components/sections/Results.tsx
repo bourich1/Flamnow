@@ -103,7 +103,7 @@ export default function Results({ data = [] }: ResultsProps) {
                 <div className="mt-space-lg flex flex-col">
                   {/* js-counter hook is assigned for future query targeting, with raw targets in dataset */}
                   <span
-                    className="js-counter text-4xl sm:text-5xl font-black tracking-tight font-display leading-none"
+                    className="js-counter text-3xl sm:text-4xl lg:text-3xl xl:text-4xl font-black tracking-tight font-display leading-none"
                     style={{ color: stat.color }}
                     data-target-raw={stat.rawVal}
                     data-target-prefix={stat.prefix}

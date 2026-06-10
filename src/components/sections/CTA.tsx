@@ -49,11 +49,11 @@ export default function CTA({ data }: CTAProps) {
   }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="relative w-full bg-[#111111] py-24 md:py-36 px-6 md:px-12 overflow-hidden">
+    <section ref={containerRef} className="relative w-full bg-[#111111] py-24 md:py-36 overflow-hidden">
       {/* Background Orbs */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[600px] w-[600px] rounded-full bg-[#ED3F27]/10 blur-[130px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[350px] w-[350px] md:h-[600px] md:w-[600px] rounded-full bg-[#ED3F27]/10 blur-[130px] pointer-events-none" />
 
-      <div className="mx-auto max-w-5xl relative z-10 flex flex-col items-center text-center gap-8 md:gap-10">
+      <div className="mx-auto max-w-5xl relative z-10 flex flex-col items-center text-center gap-8 md:gap-10 px-6 md:px-12">
         <span className="cta-label text-xs font-bold uppercase tracking-widest text-[#ED3F27] font-mono">{label}</span>
         
         <h2 className="cta-title text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight text-white leading-none font-display">

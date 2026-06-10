@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 import Container from "@/components/layout/Container";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { Sparkles, Target, Film, Laptop, Users, Check, ChevronDown, CheckCircle } from "lucide-react";
+import { Sparkles, Target, Film, Laptop, Users, Check, ChevronDown, CheckCircle, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 // Helper to map string to Lucide icon
 const getIcon = (id: string) => {
@@ -84,14 +85,20 @@ export default function ServicesClient({ services, faqs, packages = [] }: Servic
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const displayPackages = packages && packages.length > 0 ? packages : defaultPackages;
 
+  // Determine repetition count based on list size for a smooth marquee loop
+  const repeatCount = services.length < 3 ? 8 : (services.length < 6 ? 4 : 2);
+  const repeatedServices = Array(repeatCount).fill(services).flat();
+  const translationPercentage = -(100 / repeatCount);
+  const animationDuration = services.length * 8; // 8s per item in a single set
+
   const toggleFaq = (idx: number) => {
     setOpenFaq(openFaq === idx ? null : idx);
   };
 
   return (
-    <div className="bg-bg-base min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden">
+    <div className="bg-bg-base min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Background Orbs */}
-      <div className="absolute top-1/4 left-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-primary-base/5 blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -z-10 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-primary-base/5 blur-[150px] pointer-events-none" />
 
       <Container className="relative z-10 flex flex-col gap-space-8xl">
         
@@ -108,79 +115,111 @@ export default function ServicesClient({ services, faqs, packages = [] }: Servic
             </p>
           </div>
 
-          {/* Capabilities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
-            {services.map((service) => {
-              const IconComponent = getIcon(service.id);
-              const mVal = service.metrics?.value || service.metric_value || "";
-              const feats = Array.isArray(service.features) ? service.features : [];
-              const benefitsList = Array.isArray(service.benefits) ? service.benefits : [];
+          {/* Services Scroll Marquee Carousel */}
+          <div className="relative w-full overflow-hidden py-6 select-none">
+            {/* Visual fading overlays on left and right for premium aesthetics */}
+            <div className="absolute top-0 left-0 w-20 sm:w-32 h-full bg-gradient-to-r from-bg-base to-transparent z-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-20 sm:w-32 h-full bg-gradient-to-l from-bg-base to-transparent z-20 pointer-events-none" />
 
-              return (
-                <div
-                  key={service.id}
-                  className="bg-surface-base border border-white-base/5 rounded-card p-space-lg flex flex-col justify-between min-h-[520px] transition-all duration-300 hover:border-white-base/10"
-                  onMouseEnter={() => setCursorType("hover")}
-                  onMouseLeave={() => setCursorType("default")}
-                >
-                  <div className="flex flex-col gap-space-sm">
-                    {/* Top row: Icon & Tagline */}
-                    <div className="flex justify-between items-center">
-                      <div
-                        className="h-12 w-12 rounded-input border flex items-center justify-center transition-colors duration-500"
-                        style={{
-                          color: service.color,
-                          borderColor: `${service.color}20`,
-                          backgroundColor: `${service.color}10`,
-                        }}
-                      >
-                        <IconComponent className="h-6 w-6" />
+            <div
+              className="flex w-max gap-6 pr-6 animate-services-marquee"
+              style={{
+                "--marquee-translate": `${translationPercentage}%`,
+                "--marquee-duration": `${animationDuration}s`,
+              } as React.CSSProperties}
+            >
+              {repeatedServices.map((service, index) => {
+                const IconComponent = getIcon(service.id);
+                const mVal = service.metrics?.value || service.metric_value || "";
+                const feats = Array.isArray(service.features) ? service.features : [];
+                const benefitsList = Array.isArray(service.benefits) ? service.benefits : [];
+
+                return (
+                  <Link
+                    key={`${service.id}-${index}`}
+                    href={`/services/${service.id}`}
+                    className="service-carousel-slide w-[340px] shrink-0 group relative bg-[#121212] border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[540px] overflow-hidden transition-all duration-500 hover:bg-[#1e1e1e] hover:-translate-y-2 hover:border-white/15 cursor-pointer"
+                    onMouseEnter={() => setCursorType("hover")}
+                    onMouseLeave={() => setCursorType("default")}
+                  >
+                    {/* Radial Glow Overlay driven by service accent color */}
+                    <div
+                      className="absolute inset-0 -z-10 bg-radial transition-all duration-700 opacity-0 group-hover:opacity-100 pointer-events-none"
+                      style={{
+                        backgroundImage: `radial-gradient(circle at top right, ${service.color}15 0%, transparent 60%)`,
+                      }}
+                    />
+
+                    <div className="flex flex-col gap-space-sm">
+                      {/* Top row: Icon & Tagline */}
+                      <div className="flex justify-between items-start">
+                        <div
+                          className="h-12 w-12 rounded-input border flex items-center justify-center transition-colors duration-500"
+                          style={{
+                            color: service.color,
+                            borderColor: `${service.color}20`,
+                            backgroundColor: `${service.color}10`,
+                          }}
+                        >
+                          <IconComponent className="h-6 w-6" />
+                        </div>
+                        {mVal && (
+                          <div className="text-right font-mono">
+                            <p className="text-2xl font-black font-display leading-none" style={{ color: service.color }}>
+                              {mVal}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-xs font-bold font-display" style={{ color: service.color }}>
-                        {mVal}
-                      </span>
+
+                      {/* Service Info */}
+                      <div className="mt-4">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary-base font-body">{service.tagline}</span>
+                        <h3 className="text-2xl font-black uppercase tracking-tight text-white-base font-display mt-1 group-hover:text-primary-base transition-colors duration-200">{service.title}</h3>
+                        <p className="text-white-base/60 text-xs sm:text-sm leading-relaxed mt-2 font-body">{service.description}</p>
+                      </div>
+
+                      {/* Core Benefits */}
+                      {benefitsList.length > 0 && (
+                        <div className="mt-6 border-t border-white-base/5 pt-6 flex flex-col gap-3">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white-base/40 font-body">Key Benefits</p>
+                          <ul className="flex flex-col gap-2.5">
+                            {benefitsList.slice(0, 2).map((benefit: string, bIdx: number) => (
+                              <li key={bIdx} className="text-xs text-white-base/85 flex items-start gap-2.5 font-body font-semibold">
+                                <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                                {benefit}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Competencies */}
+                      {feats.length > 0 && (
+                        <div className="mt-6 border-t border-white-base/5 pt-6 flex flex-col gap-3">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white-base/40 font-body">Scope Includes</p>
+                          <ul className="flex flex-col gap-2">
+                            {feats.slice(0, 3).map((feat: string, fIdx: number) => (
+                              <li key={fIdx} className="text-xs text-white-base/70 flex items-center gap-2 font-body">
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary-base" />
+                                {feat}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Service Info */}
-                    <div className="mt-4">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary-base font-body">{service.tagline}</span>
-                      <h3 className="text-2xl font-black uppercase tracking-tight text-white-base font-display mt-1">{service.title}</h3>
-                      <p className="text-white-base/60 text-xs sm:text-sm leading-relaxed mt-2 font-body">{service.description}</p>
+                    {/* Link hover arrow action */}
+                    <div className="absolute bottom-space-lg right-space-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="h-8 w-8 rounded-btn border border-white/10 flex items-center justify-center">
+                        <ArrowUpRight className="h-4 w-4 text-white-base" />
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Core Benefits */}
-                  {benefitsList.length > 0 && (
-                    <div className="mt-6 border-t border-white-base/5 pt-6 flex flex-col gap-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-white-base/40 font-body">Key Benefits</p>
-                      <ul className="flex flex-col gap-2.5">
-                        {benefitsList.map((benefit: string, bIdx: number) => (
-                          <li key={bIdx} className="text-xs text-white-base/85 flex items-start gap-2.5 font-body font-semibold">
-                            <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-                            {benefit}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Competencies */}
-                  {feats.length > 0 && (
-                    <div className="mt-6 border-t border-white-base/5 pt-6 flex flex-col gap-3">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-white-base/40 font-body">Scope Includes</p>
-                      <ul className="flex flex-col gap-2">
-                        {feats.map((feat: string, fIdx: number) => (
-                          <li key={fIdx} className="text-xs text-white-base/70 flex items-center gap-2 font-body">
-                            <span className="h-1.5 w-1.5 rounded-full bg-primary-base" />
-                            {feat}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 

@@ -4,7 +4,6 @@ import "./globals.css";
 import { CursorProvider } from "@/context/CursorContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import CustomCursor from "@/components/ui/CustomCursor";
 import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 
 const inter = Inter({
@@ -97,13 +96,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-body select-none scroll-smooth">
+    <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col font-body select-none scroll-smooth" suppressHydrationWarning>
+        <script dangerouslySetInnerHTML={{ __html: 'var r=function(){document.querySelectorAll("[bis_skin_checked],[bis_register]").forEach(function(e){e.removeAttribute("bis_skin_checked");e.removeAttribute("bis_register")})};r();if(typeof MutationObserver!=="undefined"){var o=new MutationObserver(function(m){m.forEach(function(mut){if(mut.type==="attributes"){var a=mut.attributeName;if(a==="bis_skin_checked"||a==="bis_register"){mut.target.removeAttribute(a)}}})});o.observe(document.documentElement,{attributes:true,subtree:true,attributeFilter:["bis_skin_checked","bis_register"]})}' }} />
         <CursorProvider>
           <AnalyticsTracker />
-          <CustomCursor />
           <Navbar />
-          <main className="flex-grow flex flex-col">{children}</main>
+          <main className="flex-grow flex flex-col overflow-x-hidden">{children}</main>
           <Footer />
         </CursorProvider>
       </body>

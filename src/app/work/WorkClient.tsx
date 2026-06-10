@@ -46,9 +46,9 @@ export default function WorkClient({ initialProjects }: WorkClientProps) {
   };
 
   return (
-    <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden">
+    <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Background Orbs */}
-      <div className="absolute top-1/4 right-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-[#ED3F27]/5 blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 -z-10 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-[#ED3F27]/5 blur-[150px] pointer-events-none" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Page Header */}
@@ -108,7 +108,7 @@ export default function WorkClient({ initialProjects }: WorkClientProps) {
                   initial="hidden"
                   animate="visible"
                   exit="exit"
-                  className="group relative flex flex-col justify-between h-[520px] bg-white/5 border border-white/10 rounded-3xl p-8 md:p-10 overflow-hidden backdrop-blur-sm transition-all duration-500 hover:border-white/20 cursor-pointer"
+                  className="group relative flex flex-col justify-between min-h-[380px] md:h-[520px] bg-white/5 border border-white/10 rounded-3xl p-6 md:p-10 overflow-hidden backdrop-blur-sm transition-all duration-500 hover:border-white/20 cursor-pointer"
                   onMouseEnter={() => {
                     setCursorType("text");
                     setCursorText("VIEW");
@@ -133,7 +133,7 @@ export default function WorkClient({ initialProjects }: WorkClientProps) {
                   </div>
 
                   {/* Card Graphic/Center */}
-                  <div className="flex-1 flex items-center justify-center p-8">
+                  <div className="flex-1 flex items-center justify-center p-4 md:p-8">
                     <div
                       className="h-40 w-40 rounded-full flex items-center justify-center border transition-all duration-700 group-hover:scale-110"
                       style={{

@@ -29,68 +29,68 @@ const categoryGalleries: Record<string, { url: string; caption: string; aspect: 
     {
       url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
       caption: "VISUAL GUIDELINES ARCHITECTURE",
-      aspect: "md:col-span-2 h-[400px]",
+      aspect: "h-[280px] md:col-span-2 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&w=800&q=80",
       caption: "COLOR HARMONY INTEGRATION",
-      aspect: "md:col-span-1 h-[400px]",
+      aspect: "h-[280px] md:col-span-1 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
       caption: "HIGH-FIDELITY BRANDING SYSTEM",
-      aspect: "md:col-span-3 h-[500px]",
+      aspect: "h-[300px] md:col-span-3 md:h-[500px]",
     },
   ],
   "Digital": [
     {
       url: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
       caption: "DASHBOARD USER INTERACTION",
-      aspect: "md:col-span-2 h-[400px]",
+      aspect: "h-[280px] md:col-span-2 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80",
       caption: "FLUID LIQUID SVG SIMULATION",
-      aspect: "md:col-span-1 h-[400px]",
+      aspect: "h-[280px] md:col-span-1 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
       caption: "BORDERLESS PAYMENT LEDGER",
-      aspect: "md:col-span-3 h-[500px]",
+      aspect: "h-[300px] md:col-span-3 md:h-[500px]",
     },
   ],
   "Campaigns": [
     {
       url: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1200&q=80",
       caption: "OMNICHANNEL LAUNCH CAMPAIGN",
-      aspect: "md:col-span-2 h-[400px]",
+      aspect: "h-[280px] md:col-span-2 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1502904582529-0a150b48a2d0?auto=format&fit=crop&w=800&q=80",
       caption: "AUDIENCE TARGETING DETAILS",
-      aspect: "md:col-span-1 h-[400px]",
+      aspect: "h-[280px] md:col-span-1 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?auto=format&fit=crop&w=1200&q=80",
       caption: "CONVERSION TRACKING FLOWS",
-      aspect: "md:col-span-3 h-[500px]",
+      aspect: "h-[300px] md:col-span-3 md:h-[500px]",
     },
   ],
   "Production": [
     {
       url: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=800&q=80",
       caption: "SPATIAL COMPUTING RENDER",
-      aspect: "md:col-span-1 h-[400px]",
+      aspect: "h-[280px] md:col-span-1 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?auto=format&fit=crop&w=1200&q=80",
       caption: "HYPERREAL VISUAL ENGINE",
-      aspect: "md:col-span-2 h-[400px]",
+      aspect: "h-[280px] md:col-span-2 md:h-[400px]",
     },
     {
       url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80",
       caption: "NEON INTERFACE SYSTEMS",
-      aspect: "md:col-span-3 h-[500px]",
+      aspect: "h-[300px] md:col-span-3 md:h-[500px]",
     },
   ],
 };
@@ -140,7 +140,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
     <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Ambient Theme Background Glow */}
       <div
-        className="absolute top-0 right-0 -z-10 h-[600px] w-[600px] rounded-full blur-[140px] opacity-20 pointer-events-none transition-all duration-700"
+        className="absolute top-0 right-0 -z-10 h-[350px] w-[350px] md:h-[600px] md:w-[600px] rounded-full blur-[140px] opacity-20 pointer-events-none transition-all duration-700"
         style={{
           backgroundImage: `radial-gradient(circle, ${brandColor} 0%, transparent 70%)`,
         }}

@@ -60,11 +60,19 @@
   --primary-foreground: #ffffff;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
 body {
   background: var(--color-bg-base);
   color: var(--color-white-base);
   font-family: var(--font-body);
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -94,6 +102,91 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--primary);
 }
 
+.service-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 320px;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2rem;
+  margin-bottom: -2rem; /* visually compensate for padding */
+}
+
+.service-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.service-carousel-slide {
+  scroll-snap-align: center;
+}
+
+/* Fallback using standard scroll-driven animation */
+@supports (animation-timeline: view()) {
+  .service-carousel-slide {
+    animation: slide-reveal linear both;
+    animation-timeline: view(inline);
+    animation-range: entry 10% cover 30%;
+  }
+}
+
+/* Experimental scroll-trigger animation (Blossom) */
+@supports (timeline-trigger-name: --t) or (animation-trigger: --t play-forwards) {
+  .service-carousel-slide {
+    timeline-trigger-name: --slide-t;
+    timeline-trigger-source: view(inline);
+
+    animation: slide-reveal 0.4s ease both;
+    animation-timeline: auto; /* Reset fallback */
+    animation-range: normal; /* Reset fallback */
+    animation-trigger: --slide-t play-forwards play-backwards;
+  }
+}
+
+/* Services Marquee styles */
+@keyframes services-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--marquee-translate, -25%));
+  }
+}
+
+.animate-services-marquee {
+  display: flex;
+  width: max-content;
+  animation: services-marquee var(--marquee-duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.animate-services-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-services-marquee .service-carousel-slide {
+  animation: none !important;
+  timeline-trigger-name: none !important;
+  animation-timeline: auto !important;
+  animation-trigger: none !important;
+  scroll-snap-align: none !important;
+}
+
+@keyframes slide-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
 .loader {
   width: 32px;
   height: 32px;
@@ -112,8 +205,4 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary-foreground);
 }
 
-@media (pointer: fine) {
-  body, a, button, [role="button"], input, select, textarea, [onClick] {
-    cursor: none !important;
-  }
-}
+

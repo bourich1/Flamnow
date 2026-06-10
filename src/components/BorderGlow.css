@@ -1,0 +1,73 @@
+.border-glow-wrapper {
+  position: relative;
+  padding: 1.5px;
+  /* Precise width for premium thin border */
+  border-radius: var(--border-radius);
+  background: transparent;
+  overflow: hidden;
+  isolation: isolate;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.border-glow-wrapper:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 255, 255, 0.02);
+}
+
+.border-glow-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1.5px; /* The width of the border */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: var(--glow-intensity, 0);
+  background: var(--glow-background);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.border-glow-wrapper.animated-glow .border-glow-glow {
+  animation: pulse-glow 3s infinite alternate, rotate-hue 15s linear infinite;
+}
+
+@keyframes pulse-glow {
+  from {
+    filter: brightness(1) contrast(1);
+  }
+
+  to {
+    filter: brightness(1.4) contrast(1.15);
+  }
+}
+
+@keyframes rotate-hue {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.border-glow-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: inherit;
+  display: flex;
+  flex-direction: column;
+}

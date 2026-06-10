@@ -134,10 +134,10 @@ export default function Process({ steps = [] }: ProcessProps) {
           </div>
 
           {/* Right Column: Timeline Steps */}
-          <div className="lg:col-span-8 relative pl-6 sm:pl-12 flex flex-col gap-12 sm:gap-16">
+          <div className="lg:col-span-8 relative pl-8 sm:pl-12 flex flex-col gap-12 sm:gap-16">
             
             {/* GSAP Target: Background Progress Line */}
-            <div className="absolute left-1.5 sm:left-4 top-4 bottom-4 w-[2px] bg-white-base/10 rounded-full overflow-hidden pointer-events-none">
+            <div className="absolute left-[5px] sm:left-4 top-4 bottom-4 w-[2px] bg-white-base/10 rounded-full overflow-hidden pointer-events-none">
               {/* This inner line will scale-y from 0 to 1 with GSAP scrolltrigger */}
               <div className="js-timeline-line w-full h-full bg-primary-base origin-top scale-y-0 transition-transform duration-500" />
             </div>
@@ -152,7 +152,7 @@ export default function Process({ steps = [] }: ProcessProps) {
                 
                 {/* GSAP Target: Timeline Indicator Dot */}
                 <div
-                  className="js-timeline-dot absolute -left-[23px] sm:-left-[38px] top-2.5 h-3.5 w-3.5 rounded-full bg-surface-base border border-white-base/20 transition-all duration-500 group-hover:bg-[#ED3F27] group-hover:border-[#ED3F27] group-hover:scale-125"
+                  className="js-timeline-dot absolute -left-[33px] sm:-left-[38px] top-2.5 h-3.5 w-3.5 rounded-full bg-surface-base border border-white-base/20 transition-all duration-500 group-hover:bg-[#ED3F27] group-hover:border-[#ED3F27] group-hover:scale-125"
                   style={{
                     boxShadow: "0 0 10px rgba(0,0,0,0.8)",
                   }}

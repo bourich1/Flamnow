@@ -67,10 +67,10 @@ export default function AboutPage() {
   }, [supabase]);
 
   return (
-    <div className="bg-bg-base min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden">
+    <div className="bg-bg-base min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Background ambient glows */}
-      <div className="absolute top-1/4 left-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-primary-base/5 blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 -z-10 h-[400px] w-[400px] rounded-full bg-primary-base/5 blur-[130px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -z-10 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-primary-base/5 blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 -z-10 h-[250px] w-[250px] md:h-[400px] md:w-[400px] rounded-full bg-primary-base/5 blur-[130px] pointer-events-none" />
 
       <Container className="relative z-10 flex flex-col gap-space-8xl">
         

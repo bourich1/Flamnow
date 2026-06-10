@@ -195,7 +195,7 @@ export default function ContactPage() {
   return (
     <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Background Orbs */}
-      <div className="absolute top-1/3 right-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-[#ED3F27]/5 blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 -z-10 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-[#ED3F27]/5 blur-[150px] pointer-events-none" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">

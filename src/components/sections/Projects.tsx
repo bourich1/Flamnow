@@ -111,14 +111,14 @@ export default function Projects({ projects = [] }: ProjectsProps) {
           </div>
         </div>
 
-        {/* 2-Column Responsive Card Grid */}
-        <div className="project-grid-container grid grid-cols-1 lg:grid-cols-2 gap-space-lg lg:gap-space-xl">
+        {/* Responsive Card Grid */}
+        <div className="project-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {filteredProjects.map((project) => {
             const coverImg = project.cover_image || project.coverImage || "/volt_cover.png";
             return (
               <div
                 key={project.id}
-                className="project-card-item group relative flex flex-col bg-surface-base border border-white/5 rounded-card overflow-hidden transition-all duration-500 hover:border-white/15 hover:-translate-y-2 cursor-pointer"
+                className="project-card-item group relative flex flex-col bg-surface-base border border-white/5 rounded-card overflow-hidden transition-all duration-300 ease-out hover:border-white/20 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] cursor-pointer"
                 onMouseEnter={() => {
                   setCursorType("text");
                   setCursorText("VIEW");
@@ -128,24 +128,24 @@ export default function Projects({ projects = [] }: ProjectsProps) {
                   setCursorText("");
                 }}
               >
-                {/* 1. Cover Image container */}
-                <div className="relative h-[240px] sm:h-[320px] w-full overflow-hidden">
+                {/* 1. Cover Image container - using aspect ratio to avoid layout shift */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-white/5">
                   <div className="absolute inset-0 bg-gradient-to-t from-surface-base to-transparent z-10" />
                   <Image
                     src={coverImg}
                     alt={`${project.client} Case Study`}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     priority={project.id === "volt-audio" || project.id === "vortex-pay"}
                   />
                 </div>
 
                 {/* 2. Content section */}
-                <div className="p-space-lg flex flex-col gap-space-sm relative z-20">
+                <div className="p-6 flex flex-col gap-4 relative z-20 flex-grow">
                   <div className="flex justify-between items-center">
                     <span
-                      className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-btn border font-mono"
+                      className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-btn border font-mono"
                       style={{
                         color: project.color,
                         borderColor: `${project.color}30`,
@@ -159,21 +159,24 @@ export default function Projects({ projects = [] }: ProjectsProps) {
                     </span>
                   </div>
 
-                  <h3 className="text-2xl sm:text-3xl font-black text-white-base uppercase tracking-tight font-display group-hover:text-primary-base transition-colors duration-200 mt-2">
+                  <h3 className="text-xl sm:text-2xl font-black text-white-base uppercase tracking-tight font-display group-hover:text-primary-base transition-colors duration-200">
                     {project.title}
                   </h3>
 
-                  <p className="text-white-base/60 text-xs sm:text-sm leading-relaxed max-w-xl font-sans">
+                  <p className="text-white-base/60 text-xs sm:text-sm leading-relaxed max-w-xl font-sans line-clamp-3">
                     {project.description}
                   </p>
 
+                  {/* Spacer to push footer to bottom if descriptions differ in length */}
+                  <div className="flex-grow" />
+
                   {/* Card Bottom CTA */}
-                  <div className="flex items-center justify-between border-t border-white/5 pt-space-md mt-space-xs">
-                    <span className="text-xs font-bold uppercase tracking-widest text-white-base group-hover:text-primary-base transition-colors duration-300">
+                  <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-2">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-white-base group-hover:text-primary-base transition-colors duration-300">
                       Explore Case Study
                     </span>
-                    <div className="h-10 w-10 rounded-btn border border-white/10 group-hover:border-primary-base flex items-center justify-center transition-all duration-300 bg-white/5">
-                      <ArrowUpRight className="h-5 w-5 text-white-base group-hover:text-primary-base transition-all duration-300" />
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-btn border border-white/10 group-hover:border-primary-base flex items-center justify-center transition-all duration-300 bg-white/5">
+                      <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5 text-white-base group-hover:text-primary-base transition-all duration-300" />
                     </div>
                   </div>
                 </div>

@@ -5,6 +5,7 @@ import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
 import { useCursor } from "@/context/CursorContext";
 import { Flame, Rocket, BarChart3, HelpCircle } from "lucide-react";
+import BorderGlow from "@/components/BorderGlow";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Flame,
@@ -61,32 +62,71 @@ export default function WhyFlamnow({ valueProps = [] }: WhyFlamnowProps) {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
-          {displayProps.map((val) => {
+          {displayProps.map((val, idx) => {
             const Icon = iconMap[val.iconName] || HelpCircle;
+            
+            // Define custom color combinations for each card's glow
+            const colorsMap = [
+              ["#ED3F27", "#FF9F0A"], // Category Distorters: Orange-red flame
+              ["#BF5AF2", "#00E5FF"], // Speed Athletes: Cyber purple-cyan rocket
+              ["#E2F13C", "#30D158"], // Attributed Value: Lime-green charts
+            ];
+            const cardColors = colorsMap[idx % colorsMap.length];
+
+            // Define corresponding icon themes
+            const iconThemes = [
+              { color: "#ED3F27", bg: "rgba(237, 63, 39, 0.1)", border: "rgba(237, 63, 39, 0.15)", glow: "rgba(237, 63, 39, 0.25)" },
+              { color: "#BF5AF2", bg: "rgba(191, 90, 242, 0.1)", border: "rgba(191, 90, 242, 0.15)", glow: "rgba(191, 90, 242, 0.25)" },
+              { color: "#E2F13C", bg: "rgba(226, 241, 60, 0.1)", border: "rgba(226, 241, 60, 0.15)", glow: "rgba(226, 241, 60, 0.25)" },
+            ];
+            const theme = iconThemes[idx % iconThemes.length];
+
             return (
-              <div
+              <BorderGlow
                 key={val.num}
-                className="group relative bg-surface-base border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[300px] transition-all duration-300 hover:border-white/10 hover:bg-surface-sec"
-                onMouseEnter={() => setCursorType("hover")}
-                onMouseLeave={() => setCursorType("default")}
+                colors={cardColors}
+                backgroundColor="rgba(23, 23, 23, 0.45)"
+                borderRadius="24px"
+                glowRadius="200px"
+                glowIntensity={1.2}
+                edgeSensitivity={85}
+                coneSpread="65%"
+                animated={true}
               >
-                <div>
-                  <div className="flex justify-between items-center mb-space-lg">
-                    <div className="h-12 w-12 rounded-card bg-primary-base/10 border border-primary-base/20 flex items-center justify-center text-primary-base">
-                      <Icon className="h-6 w-6" />
+                <div
+                  className="group relative h-full w-full rounded-[calc(24px-1px)] p-space-lg flex flex-col justify-between min-h-[300px] transition-all duration-500 backdrop-blur-xl bg-white/[0.01] hover:bg-white/[0.04]"
+                  onMouseEnter={() => setCursorType("hover")}
+                  onMouseLeave={() => setCursorType("default")}
+                >
+                  {/* Subtle inner highlight border for premium glass reflection */}
+                  <div className="absolute inset-0 rounded-[calc(24px-1px)] border border-white/5 pointer-events-none group-hover:border-white/10 transition-colors duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]" />
+                  
+                  <div className="relative z-10">
+                    <div className="flex justify-between items-center mb-space-lg">
+                      <div 
+                        className="h-12 w-12 rounded-card flex items-center justify-center border transition-all duration-300"
+                        style={{
+                          color: theme.color,
+                          backgroundColor: theme.bg,
+                          borderColor: theme.border,
+                          boxShadow: `0 0 15px ${theme.glow}`
+                        }}
+                      >
+                        <Icon className="h-6 w-6" style={{ filter: `drop-shadow(0 0 8px ${theme.color}80)` }} />
+                      </div>
+                      <span className="font-mono text-3xl font-black text-transparent stroke-text" style={{ WebkitTextStroke: "1px rgba(255, 255, 255, 0.15)" }}>
+                        {val.num}
+                      </span>
                     </div>
-                    <span className="font-mono text-3xl font-black text-transparent stroke-text" style={{ WebkitTextStroke: "1px rgba(255, 255, 255, 0.1)" }}>
-                      {val.num}
-                    </span>
+                    <h3 className="text-xl font-bold text-white-base uppercase tracking-tight mb-space-xs group-hover:text-primary-base transition-colors duration-200 drop-shadow-md">
+                      {val.title}
+                    </h3>
+                    <p className="text-white-base/60 text-sm leading-relaxed font-light">
+                      {val.desc}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-white-base uppercase tracking-tight mb-space-xs group-hover:text-primary-base transition-colors duration-200">
-                    {val.title}
-                  </h3>
-                  <p className="text-white-base/50 text-sm leading-relaxed">
-                    {val.desc}
-                  </p>
                 </div>
-              </div>
+              </BorderGlow>
             );
           })}
         </div>

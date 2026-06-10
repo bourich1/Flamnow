@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCursor } from "@/context/CursorContext";
 import { Sparkles, Copy, Check } from "lucide-react";
 
@@ -35,6 +35,11 @@ const spacingTokens = [
 export default function DesignSystemPage() {
   const { setCursorType } = useCursor();
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -143,7 +148,7 @@ export default function DesignSystemPage() {
                 <div>
                   <p className="text-[10px] font-mono text-white-base/40 uppercase mb-2">Body Light</p>
                   <p className="text-xs font-light text-white-base/60 leading-relaxed">
-                    © {new Date().getFullYear()} FLAMNOW Agency Ltd. All rights reserved.
+                    © {currentYear ?? '2026'} FLAMNOW Agency Ltd. All rights reserved.
                   </p>
                 </div>
               </div>

@@ -51,7 +51,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
     <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
       {/* Dynamic Background Theme Glow */}
       <div
-        className="absolute top-0 right-0 -z-10 h-[600px] w-[600px] rounded-full blur-[140px] opacity-20 pointer-events-none transition-all duration-700"
+        className="absolute top-0 right-0 -z-10 h-[350px] w-[350px] md:h-[600px] md:w-[600px] rounded-full blur-[140px] opacity-20 pointer-events-none transition-all duration-700"
         style={{
           backgroundImage: `radial-gradient(circle, ${brandColor} 0%, transparent 70%)`,
         }}

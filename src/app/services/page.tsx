@@ -22,5 +22,9 @@ export default async function ServicesPage() {
   const faqs = faqsData || [];
   const packages = pricingData?.value || undefined;
 
-  return <ServicesClient services={services} faqs={faqs} packages={packages} />;
+  return (
+  <ServicesClient services={services} faqs={faqs} packages={packages} />
+
+  );
 }
+
