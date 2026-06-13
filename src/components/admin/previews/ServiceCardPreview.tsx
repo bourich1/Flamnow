@@ -1,25 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Sparkles, Target, Film, Laptop, Users, Check, ArrowUpRight, LucideIcon } from 'lucide-react'
-
-// Helper to map string to Lucide icon
-const getIcon = (id: string): LucideIcon => {
-  switch (id) {
-    case 'branding':
-      return Sparkles
-    case 'paid-ads':
-      return Target
-    case 'content-creation':
-      return Film
-    case 'website-design':
-      return Laptop
-    case 'social-media':
-      return Users
-    default:
-      return Sparkles
-  }
-}
+import { Check, ArrowUpRight } from 'lucide-react'
+import { getIconByName } from '@/lib/iconMap'
 
 interface ServiceCardPreviewProps {
   id: string
@@ -31,6 +14,8 @@ interface ServiceCardPreviewProps {
   metric_label: string | null
   metric_value: string | null
   color: string
+  icon_name?: string
+  focusedField?: string | null
 }
 
 export default function ServiceCardPreview({
@@ -42,7 +27,17 @@ export default function ServiceCardPreview({
   metric_label,
   metric_value,
   color,
+  icon_name,
+  focusedField,
 }: ServiceCardPreviewProps) {
+  const IconComponent = getIconByName(icon_name)
+
+  const getHighlight = (field: string) => {
+    return focusedField === field 
+      ? 'ring-2 ring-white/50 bg-white/10 rounded px-1 -mx-1 transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.2)]' 
+      : 'transition-all duration-300'
+  }
+
   return (
     <div
       className="group relative bg-[#181818] border border-white/5 rounded-3xl p-6 flex flex-col justify-between min-h-[440px] overflow-hidden transition-all duration-500 hover:bg-[#1e1e1e] hover:-translate-y-2 hover:border-white/15 cursor-pointer text-left w-full max-w-sm mx-auto shadow-2xl"
@@ -65,14 +60,14 @@ export default function ServiceCardPreview({
             backgroundColor: `${color || '#ED3F27'}10`,
           }}
         >
-          {React.createElement(getIcon(id), { className: "h-6 w-6" })}
+          <IconComponent className="h-6 w-6" />
         </div>
         {(metric_value || metric_label) && (
           <div className="text-right font-mono">
-            <p className="text-2xl font-black font-display leading-none" style={{ color: color || '#ED3F27' }}>
+            <p className={`text-2xl font-black font-display leading-none inline-block ${getHighlight('formMetricValue')}`} style={{ color: color || '#ED3F27' }}>
               {metric_value || '0.0x'}
             </p>
-            <p className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1">
+            <p className={`text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1 inline-block ${getHighlight('formMetricLabel')}`}>
               {metric_label || 'Metric'}
             </p>
           </div>
@@ -80,20 +75,20 @@ export default function ServiceCardPreview({
       </div>
 
       {/* Card Center: Core Info */}
-      <div className="flex flex-col gap-2 mt-6">
-        <span className="text-[10px] font-bold uppercase tracking-widest font-mono" style={{ color: color || '#ED3F27' }}>
+      <div className="flex flex-col gap-2 mt-6 items-start">
+        <span className={`text-[10px] font-bold uppercase tracking-widest font-mono inline-block ${getHighlight('formTagline')}`} style={{ color: color || '#ED3F27' }}>
           {tagline || 'Tagline placeholder'}
         </span>
-        <h3 className="text-2xl font-black text-white uppercase tracking-tight font-display">
+        <h3 className={`text-2xl font-black text-white uppercase tracking-tight font-display inline-block ${getHighlight('formTitle')}`}>
           {title || 'Service Title'}
         </h3>
-        <p className="text-white/60 text-xs sm:text-sm leading-relaxed mt-1">
+        <p className={`text-white/60 text-xs sm:text-sm leading-relaxed mt-1 inline-block ${getHighlight('formDescription')}`}>
           {description || 'No description provided yet.'}
         </p>
       </div>
 
       {/* Card Bottom: Features List */}
-      <div className="mt-6 pt-4 border-t border-white/5 flex flex-col gap-2">
+      <div className={`mt-6 pt-4 border-t border-white/5 flex flex-col gap-2 ${focusedField === 'formFeatures' ? 'ring-2 ring-white/50 bg-white/10 rounded-xl p-2' : ''} transition-all`}>
         <p className="text-[9px] font-bold uppercase tracking-widest text-white/35 font-mono">Competencies</p>
         <ul className="flex flex-col gap-2.5">
           {features && features.length > 0 ? (

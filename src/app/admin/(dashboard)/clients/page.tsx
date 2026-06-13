@@ -28,6 +28,7 @@ export default function ClientsAdminPage() {
   const [newClientName, setNewClientName] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -181,6 +182,8 @@ export default function ClientsAdminPage() {
                       required
                       placeholder="e.g. Acme Corporation"
                       value={newClientName}
+                      onFocus={() => setFocusedField('newClientName')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => {
                         setNewClientName(e.target.value)
                         setValidationErrors({})
@@ -220,6 +223,8 @@ export default function ClientsAdminPage() {
                     type="text"
                     placeholder="Search brand name..."
                     value={searchQuery}
+                      onFocus={() => setFocusedField('searchQuery')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-border-theme bg-bg-base text-[10px] text-foreground placeholder-white/25 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
                   />
@@ -265,7 +270,8 @@ export default function ClientsAdminPage() {
               </span>
             </div>
 
-            <ClientsPreview clients={clientNames} />
+            <ClientsPreview clients={clientNames} focusedField={focusedField}
+            />
           </div>
 
         </div>

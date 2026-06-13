@@ -3,11 +3,11 @@ import { redirect } from 'next/navigation'
 import { 
   Shield, 
   LogOut, 
-  MessageSquare, 
-  Briefcase, 
+  MessageCircle, 
+  FolderKanban, 
   Settings, 
-  Activity, 
-  Layers, 
+  Zap, 
+  Gem, 
   UserCheck, 
   Clock, 
   Mail 
@@ -84,7 +84,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-[#121212] border border-white/5 p-6 rounded-2xl relative overflow-hidden group hover:border-[#ED3F27]/30 transition-all duration-300">
           <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-[#ED3F27]/5 blur-2xl group-hover:bg-[#ED3F27]/10 transition-all duration-300" />
           <div className="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center mb-4 text-[#ED3F27]">
-            <MessageSquare className="h-5 w-5" />
+            <MessageCircle className="h-5 w-5" />
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 font-mono">Inquiries</p>
           <h3 className="text-3xl font-black mt-1 font-display tracking-tight text-white">{contactCount ?? 0}</h3>
@@ -94,7 +94,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-[#121212] border border-white/5 p-6 rounded-2xl relative overflow-hidden group hover:border-[#00E5FF]/30 transition-all duration-300">
           <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-[#00E5FF]/5 blur-2xl group-hover:bg-[#00E5FF]/10 transition-all duration-300" />
           <div className="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center mb-4 text-[#00E5FF]">
-            <Briefcase className="h-5 w-5" />
+            <FolderKanban className="h-5 w-5" />
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 font-mono">Case Studies</p>
           <h3 className="text-3xl font-black mt-1 font-display tracking-tight text-white">{projectCount ?? 0}</h3>
@@ -104,7 +104,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-[#121212] border border-white/5 p-6 rounded-2xl relative overflow-hidden group hover:border-[#BF5AF2]/30 transition-all duration-300">
           <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-[#BF5AF2]/5 blur-2xl group-hover:bg-[#BF5AF2]/10 transition-all duration-300" />
           <div className="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center mb-4 text-[#BF5AF2]">
-            <Layers className="h-5 w-5" />
+            <Gem className="h-5 w-5" />
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 font-mono">Services</p>
           <h3 className="text-3xl font-black mt-1 font-display tracking-tight text-white">{serviceCount ?? 0}</h3>
@@ -114,7 +114,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-[#121212] border border-white/5 p-6 rounded-2xl relative overflow-hidden group hover:border-[#FF9F0A]/30 transition-all duration-300">
           <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-[#FF9F0A]/5 blur-2xl group-hover:bg-[#FF9F0A]/10 transition-all duration-300" />
           <div className="h-10 w-10 rounded-xl bg-white/[0.02] border border-white/10 flex items-center justify-center mb-4 text-[#FF9F0A]">
-            <Activity className="h-5 w-5" />
+            <Zap className="h-5 w-5" />
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/60 font-mono">Events Traced</p>
           <h3 className="text-3xl font-black mt-1 font-display tracking-tight text-white">{eventCount ?? 0}</h3>
@@ -184,7 +184,7 @@ export default async function AdminDashboardPage() {
             </div>
           ) : (
             <div className="h-48 border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-center p-6 bg-white/[0.005]">
-              <MessageSquare className="h-8 w-8 text-white/20 mb-2" />
+              <MessageCircle className="h-8 w-8 text-white/20 mb-2" />
               <p className="text-xs text-white/60">No contact messages received yet.</p>
               <p className="text-[10px] text-white/20 mt-1">Configure your contact page to call the submit Server Action.</p>
             </div>

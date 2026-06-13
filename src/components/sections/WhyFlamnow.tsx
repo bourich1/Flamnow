@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
 import { useCursor } from "@/context/CursorContext";
@@ -24,30 +24,35 @@ interface WhyFlamnowProps {
   valueProps?: ValuePropItem[];
 }
 
-const defaultProps = [
-  {
-    iconName: "Flame",
-    num: "01",
-    title: "Category Distorters",
-    desc: "We reject typical template guidelines and boring copy. We design brand identities that assert visual authority, making your competition irrelevant."
-  },
-  {
-    iconName: "Rocket",
-    num: "02",
-    title: "Speed Athletes",
-    desc: "We ship assets at sprint speed. We build next-gen Next.js sites and cinematic videography in weeks, keeping you ahead of fast-moving markets."
-  },
-  {
-    iconName: "BarChart3",
-    num: "03",
-    title: "Attributed Value",
-    desc: "We back our aesthetics with numbers. We configure custom marketing tags to verify exactly how our work fuels your bottom-line expansion."
-  }
-];
-
 export default function WhyFlamnow({ valueProps = [] }: WhyFlamnowProps) {
   const { setCursorType } = useCursor();
-  const displayProps = valueProps && valueProps.length > 0 ? valueProps : defaultProps;
+
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = !valueProps || valueProps.length === 0;
+
+  const displayProps = isLoading ? [
+    {
+      iconName: "Flame",
+      num: "01",
+      title: "Loading Value",
+      desc: "Loading description that occupies a couple of lines to act as a placeholder skeleton for this value proposition."
+    },
+    {
+      iconName: "Rocket",
+      num: "02",
+      title: "Loading Value",
+      desc: "Loading description that occupies a couple of lines to act as a placeholder skeleton for this value proposition."
+    },
+    {
+      iconName: "BarChart3",
+      num: "03",
+      title: "Loading Value",
+      desc: "Loading description that occupies a couple of lines to act as a placeholder skeleton for this value proposition."
+    }
+  ] : valueProps;
 
   return (
     <section className="relative bg-bg-base py-space-6xl border-b border-white/5 overflow-hidden">
@@ -61,9 +66,10 @@ export default function WhyFlamnow({ valueProps = [] }: WhyFlamnowProps) {
           description="We do not build compromises. We operate at the intersection of creative direction and high-speed execution."
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
-          {displayProps.map((val, idx) => {
-            const Icon = iconMap[val.iconName] || HelpCircle;
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg py-8">
+            {displayProps.map((val, idx) => {
+              const Icon = iconMap[val.iconName] || HelpCircle;
             
             // Define custom color combinations for each card's glow
             const colorsMap = [
@@ -130,7 +136,8 @@ export default function WhyFlamnow({ valueProps = [] }: WhyFlamnowProps) {
             );
           })}
         </div>
-      </Container>
-    </section>
-  );
+      </phantom-ui>
+    </Container>
+  </section>
+);
 }

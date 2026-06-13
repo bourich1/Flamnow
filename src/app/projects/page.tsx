@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import ProjectsClient from "./ProjectsClient";
 
+
 export const revalidate = 60; // Revalidate every minute
 
 export default async function ProjectsPage() {
@@ -11,7 +12,18 @@ export default async function ProjectsPage() {
     .select("*")
     .order("title", { ascending: true });
 
-  const projects = projectsData || [];
+  const rawProjects = projectsData || [];
+
+  const projects = rawProjects.map(p => ({
+    ...p,
+    title: p.title,
+    tagline: p.tagline,
+    description: p.description,
+    category: p.category,
+    client: p.client,
+    year: p.year,
+    results: p.results,
+  }));
 
   return <ProjectsClient initialProjects={projects} />;
 }

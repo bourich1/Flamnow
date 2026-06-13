@@ -9,8 +9,9 @@ interface TeamPreviewProps {
   role: string
   bio: string
   specialty: string
-  instagram: string
   linkedin: string
+  instagram: string
+  focusedField?: string | null
 }
 
 export default function TeamPreview({
@@ -18,32 +19,38 @@ export default function TeamPreview({
   role,
   bio,
   specialty,
+  linkedin,
+  instagram,
+  focusedField,
 }: TeamPreviewProps) {
+  const getHighlight = (field: string) => {
+    return focusedField === field ? 'ring-2 ring-[#ED3F27] rounded transition-all' : ''
+  }
   return (
     <div
       className="group relative flex flex-col justify-between min-h-[380px] bg-[#121212] border border-white/5 rounded-3xl p-6 transition-all duration-300 hover:border-white/10 text-left w-full max-w-xs mx-auto shadow-2xl"
     >
       <div>
-        <span className="text-[8px] font-bold uppercase tracking-widest text-[#ED3F27] bg-[#ED3F27]/10 border border-[#ED3F27]/20 px-3 py-1 rounded-full font-mono">
+        <span className={`text-[8px] font-bold uppercase tracking-widest text-[#ED3F27] bg-[#ED3F27]/10 border border-[#ED3F27]/20 px-3 py-1 rounded-full font-mono ${getHighlight('formSpecialty')}`}>
           {specialty || 'Specialty'}
         </span>
-        <h3 className="text-lg font-black text-white uppercase tracking-tight mt-6 group-hover:text-primary-base transition-colors duration-200 font-display">
+        <h3 className={`text-lg font-black text-white uppercase tracking-tight mt-6 group-hover:text-primary-base transition-colors duration-200 font-display ${getHighlight('formName')}`}>
           {name || 'Team Member Name'}
         </h3>
-        <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1 font-body">
+        <p className={`text-[10px] text-white/40 font-bold uppercase tracking-widest mt-1 font-body ${getHighlight('formRole')}`}>
           {role || 'Job Role / Title'}
         </p>
-        <p className="text-white/60 text-xs mt-6 leading-relaxed font-body">
+        <p className={`text-white/60 text-xs mt-6 leading-relaxed font-body ${getHighlight('formBio')}`}>
           {bio || 'Write a brief professional bio describing their expertise and contribution.'}
         </p>
       </div>
 
       <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
         <div className="flex gap-4 font-body text-[10px] text-white/50">
-          <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+          <span className={`hover:text-white transition-colors duration-200 cursor-pointer ${getHighlight('formLinkedin')}`}>
             LinkedIn
           </span>
-          <span className="hover:text-white transition-colors duration-200 cursor-pointer">
+          <span className={`hover:text-white transition-colors duration-200 cursor-pointer ${getHighlight('formInstagram')}`}>
             Instagram
           </span>
         </div>

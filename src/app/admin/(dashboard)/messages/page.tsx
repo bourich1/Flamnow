@@ -20,6 +20,7 @@ import {
   Filter
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 
 interface MessageItem {
   id: string
@@ -44,6 +45,7 @@ export default function MessagesAdminPage() {
   
   // Filtering & Search
   const [searchQuery, setSearchQuery] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState('All')
   
   // Message Selection
@@ -51,6 +53,9 @@ export default function MessagesAdminPage() {
   
   // Status Selector UI State
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false)
+  
+  // Delete Modal State
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null)
 
   useEffect(() => {
     fetchMessages()
@@ -90,9 +95,14 @@ export default function MessagesAdminPage() {
     }
   }
 
-  const handleDelete = async (id: string, e?: React.MouseEvent) => {
+  const handleDeleteClick = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
-    if (!confirm('Are you sure you want to delete this message?')) return
+    setMessageToDelete(id)
+  }
+
+  const executeDelete = async () => {
+    if (!messageToDelete) return
+    const id = messageToDelete
     
     setActionLoading(true)
     try {
@@ -110,6 +120,7 @@ export default function MessagesAdminPage() {
       alert(err.message || 'Error deleting message')
     } finally {
       setActionLoading(false)
+      setMessageToDelete(null)
     }
   }
 
@@ -141,51 +152,7 @@ export default function MessagesAdminPage() {
     }
   }
 
-  const handleSeedMessages = async () => {
-    setActionLoading(true)
-    try {
-      const sampleMessages = [
-        {
-          name: 'Sarah Connor',
-          email: 'sconnor@cyberdyne.io',
-          phone: '+1 (555) 902-1984',
-          company: 'Resistance Tech',
-          services: ['Branding', 'Digital'],
-          budget: '$25,000 - $50,000',
-          message: 'We are launching a new visual platform designed to track cloud networks and automate system security. We need a bold brand identity, high-fidelity landing pages, and interactive WebGL elements that feel like the future.'
-        },
-        {
-          name: 'Bruce Wayne',
-          email: 'bwayne@waynecorp.com',
-          phone: '+1 (800) Batman',
-          company: 'Wayne Enterprises',
-          services: ['Production', 'Campaigns'],
-          budget: '$100,000+',
-          message: 'Looking for a cinematic production agency to shoot high-end trailers for our new spatial computing device. Needs to convey premium craftsmanship, darkness, and high intelligence. Can you deliver within 6 weeks?'
-        },
-        {
-          name: 'Tony Stark',
-          email: 'tony@stark.arc',
-          phone: null,
-          company: 'Stark Industries',
-          services: ['Digital', 'Branding'],
-          budget: '$75,000 - $100,000',
-          message: 'Need a complete rebrand for our clean energy consumer tech branch. Looking for ultra-clean layouts, glowing neon theme variables, and bold typography.'
-        }
-      ]
 
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert(sampleMessages)
-
-      if (error) throw error
-      fetchMessages()
-    } catch (err: any) {
-      alert(err.message || 'Error seeding messages')
-    } finally {
-      setActionLoading(false)
-    }
-  }
 
   const getStatusBadgeClass = (status?: string) => {
     switch (status) {
@@ -248,16 +215,6 @@ export default function MessagesAdminPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {messages.length === 0 && !loading && (
-            <button
-              onClick={handleSeedMessages}
-              disabled={actionLoading}
-              className="flex items-center gap-2 border border-[#ED3F27]/20 bg-[#ED3F27]/10 hover:bg-[#ED3F27]/20 text-[#ED3F27] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer disabled:opacity-50"
-            >
-              <Database className="h-3.5 w-3.5" />
-              <span>Seed Sample Leads</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -271,6 +228,8 @@ export default function MessagesAdminPage() {
             type="text"
             placeholder="Search leads, company, or insights..."
             value={searchQuery}
+                      onFocus={() => setFocusedField('searchQuery')}
+                      onBlur={() => setFocusedField(null)}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/5 bg-[#121212]/80 text-xs text-white placeholder-white/30 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
           />
@@ -305,15 +264,8 @@ export default function MessagesAdminPage() {
           <Mail className="h-10 w-10 text-white/20 mx-auto mb-3" />
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Inbox is Empty</h3>
           <p className="text-xs text-white/60 max-w-sm mx-auto mt-2">
-            No contact submissions have been logged. You can seed some mock leads to verify the dashboard layout.
+            No contact submissions have been logged. Wait for visitors to submit forms from the website.
           </p>
-          <button
-            onClick={handleSeedMessages}
-            className="mt-6 flex items-center gap-2 border border-white/10 hover:border-white/20 bg-[#121212] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 mx-auto cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-[#ED3F27]" />
-            <span>Seed Demo Leads</span>
-          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -371,7 +323,7 @@ export default function MessagesAdminPage() {
                       </div>
 
                       <button
-                        onClick={(e) => handleDelete(msg.id, e)}
+                        onClick={(e) => handleDeleteClick(msg.id, e)}
                         className="p-1.5 rounded-lg border border-white/5 bg-[#121212] hover:bg-red-500/10 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all focus:opacity-100"
                         title="Delete inquiry"
                       >
@@ -455,7 +407,7 @@ export default function MessagesAdminPage() {
                         </div>
 
                         <button
-                          onClick={() => handleDelete(selectedMessage.id)}
+                          onClick={() => handleDeleteClick(selectedMessage.id)}
                           className="flex items-center gap-2 border border-white/10 hover:border-red-500/20 hover:text-red-400 px-3.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -527,6 +479,16 @@ export default function MessagesAdminPage() {
 
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!messageToDelete}
+        onClose={() => setMessageToDelete(null)}
+        onConfirm={executeDelete}
+        title="Delete Message"
+        message="Are you sure you want to permanently delete this message? This action cannot be undone."
+        confirmText={actionLoading ? "Deleting..." : "Delete"}
+        cancelText="Cancel"
+      />
     </div>
   )
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 
@@ -16,20 +16,52 @@ const menuLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
-  { href: "/design-system", label: "Tokens" },
   { href: "/contact", label: "Contact" },
 ];
 
-const socialLinks = [
-  { href: "#", label: "Instagram" },
-  { href: "#", label: "LinkedIn" },
-  { href: "#", label: "Twitter" },
-  { href: "#", label: "Behance" },
-];
+import { createClient } from "@/lib/supabase/client";
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname();
   const { setCursorType, setCursorText } = useCursor();
+  
+  const [email, setEmail] = useState("hello@flamnow.com");
+  const [socials, setSocials] = useState([
+    { href: "#", label: "Instagram" },
+    { href: "#", label: "LinkedIn" },
+    { href: "#", label: "Twitter" },
+  ]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    async function loadMobileMenuData() {
+      try {
+        const { data } = await supabase.from("site_settings").select("*");
+        if (data) {
+          data.forEach(item => {
+            if (item.key === "general_settings") {
+               const val = item.value as any;
+               setEmail(val.contactEmail || "hello@flamnow.com");
+            } else if (item.key === "social_links") {
+               const val = item.value as any;
+               if (Array.isArray(val)) {
+                 setSocials(val.map((s: any) => ({ href: s.href || "#", label: s.name })));
+               } else {
+                 const arr = [];
+                 if (val.instagram && val.instagram !== "#") arr.push({ href: val.instagram, label: "Instagram" });
+                 if (val.linkedin && val.linkedin !== "#") arr.push({ href: val.linkedin, label: "LinkedIn" });
+                 if (val.twitter && val.twitter !== "#") arr.push({ href: val.twitter, label: "Twitter" });
+                 if (arr.length > 0) setSocials(arr);
+               }
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error loading mobile menu data:", err);
+      }
+    }
+    loadMobileMenuData();
+  }, []);
 
   // Disable scroll when overlay is active
   useEffect(() => {
@@ -134,16 +166,16 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <div className="flex flex-col gap-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Say Hello</p>
                 <a
-                  href="mailto:hello@flamnow.com"
+                  href={`mailto:${email}`}
                   className="text-sm text-white hover:text-[#ED3F27] transition-colors duration-200"
                 >
-                  hello@flamnow.com
+                  {email}
                 </a>
               </div>
               <div className="flex flex-col gap-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">Follow Us</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
-                  {socialLinks.map((social) => (
+                  {socials.map((social) => (
                     <a
                       key={social.label}
                       href={social.href}

@@ -11,6 +11,7 @@ interface TestimonialPreviewProps {
   quote: string
   metric: string
   metric_label: string
+  focusedField?: string | null
 }
 
 export default function TestimonialPreview({
@@ -20,7 +21,11 @@ export default function TestimonialPreview({
   quote,
   metric,
   metric_label,
+  focusedField,
 }: TestimonialPreviewProps) {
+  const getHighlight = (field: string) => {
+    return focusedField === field ? 'ring-2 ring-[#ED3F27] rounded transition-all' : ''
+  }
   const getInitials = (n: string) => {
     if (!n) return '?'
     return n
@@ -44,7 +49,7 @@ export default function TestimonialPreview({
         </div>
 
         {/* Quote */}
-        <p className="text-sm md:text-base font-medium text-white italic leading-relaxed font-body">
+        <p className={`text-sm md:text-base font-medium text-white italic leading-relaxed font-body ${getHighlight('formQuote')}`}>
           &ldquo;{quote || 'Client review quote goes here.'}&rdquo;
         </p>
 
@@ -55,10 +60,10 @@ export default function TestimonialPreview({
               {getInitials(name)}
             </div>
             <div>
-              <p className="text-xs font-black text-white font-display tracking-tight leading-none">
+              <p className={`text-xs font-black text-white font-display tracking-tight leading-none ${getHighlight('formName')}`}>
                 {name || 'Client Name'}
               </p>
-              <p className="text-[9px] text-[#ED3F27] uppercase tracking-widest font-bold mt-1 leading-none">
+              <p className={`text-[9px] text-[#ED3F27] uppercase tracking-widest font-bold mt-1 leading-none ${getHighlight('formRole')} ${getHighlight('formCompany')}`}>
                 {role || 'Role'}, {company || 'Company'}
               </p>
             </div>
@@ -66,10 +71,10 @@ export default function TestimonialPreview({
 
           {metric && (
             <div className="flex flex-col items-start sm:items-end font-mono">
-              <span className="text-xl font-black text-white font-display leading-none">
+              <span className={`text-xl font-black text-white font-display leading-none ${getHighlight('formMetric')}`}>
                 {metric}
               </span>
-              <span className="text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1 leading-none">
+              <span className={`text-[8px] font-bold uppercase tracking-widest text-white/40 mt-1 leading-none ${getHighlight('formMetricLabel')}`}>
                 {metric_label || 'Performance Boost'}
               </span>
             </div>

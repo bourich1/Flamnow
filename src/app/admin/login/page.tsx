@@ -30,9 +30,10 @@ export default function AdminLoginPage() {
         setError(response.error)
         setIsLoading(false)
       } else {
-        // Redirect to admin dashboard home on successful login
-        router.push('/admin')
+        // Refresh the router to update the server components with the new session
         router.refresh()
+        // Push to the dashboard
+        router.push('/admin')
       }
     } catch {
       setError('An unexpected error occurred. Please try again.')

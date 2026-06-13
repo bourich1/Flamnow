@@ -31,18 +31,22 @@ export default function TeamAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  // Form States
+  // Form States (Global)
   const [formId, setFormId] = useState('')
   const [formName, setFormName] = useState('')
-  const [formRole, setFormRole] = useState('')
-  const [formBio, setFormBio] = useState('')
-  const [formSpecialty, setFormSpecialty] = useState('')
   const [formInstagram, setFormInstagram] = useState('#')
   const [formLinkedin, setFormLinkedin] = useState('#')
+
+  // Form States
+  const [formRole, setFormRole] = useState('')
+  const [formBio, setFormBio] = useState('')
+  const [formSpecialty, setFormSpecialtie] = useState('')
 
   useEffect(() => {
     fetchTeam()
@@ -60,12 +64,6 @@ export default function TeamAdminPage() {
       const tmList = data || []
       setTeam(tmList)
       
-      // Auto select first member
-      if (tmList.length > 0) {
-        selectMember(tmList[0])
-      } else {
-        handleAddNew()
-      }
     } catch (err) {
       console.error('Error fetching team:', err)
     } finally {
@@ -77,28 +75,36 @@ export default function TeamAdminPage() {
     setEditingId(member.id)
     setFormId(member.id)
     setFormName(member.name)
-    setFormRole(member.role)
-    setFormBio(member.bio)
-    setFormSpecialty(member.specialty)
     setFormInstagram(member.instagram)
     setFormLinkedin(member.linkedin)
+    
+    setFormRole(member.role || '')
+    setFormBio(member.bio || '')
+    setFormSpecialtie(member.specialty || '')
+
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+    
+    setShowForm(true)
   }
 
   const handleAddNew = () => {
     setEditingId(null)
     setFormId('')
     setFormName('Creative Strategist')
-    setFormRole('Growth Designer')
-    setFormBio('Experienced in driving digital strategy and creative implementations.')
-    setFormSpecialty('Growth Hacking & UI Design')
     setFormInstagram('#')
     setFormLinkedin('#')
+    
+    setFormRole('Growth Designer')
+    setFormBio('Experienced in driving digital strategy and creative implementations.')
+    setFormSpecialtie('Growth Hacking & UI Design')
+
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+    
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -114,11 +120,7 @@ export default function TeamAdminPage() {
       const remaining = team.filter(t => t.id !== id)
       setTeam(remaining)
       setSuccessMsg('Team member deleted successfully.')
-      if (remaining.length > 0) {
-        selectMember(remaining[0])
-      } else {
-        handleAddNew()
-      }
+      setShowForm(false)
       setTimeout(() => setSuccessMsg(''), 3000)
     } catch (err: any) {
       alert(err.message || 'Error deleting team member')
@@ -133,9 +135,9 @@ export default function TeamAdminPage() {
     // Required fields
     if (!formId.trim() && !editingId) errors.id = 'Member ID Slug is required.'
     if (!formName.trim()) errors.name = 'Full Name is required.'
-    if (!formRole.trim()) errors.role = 'Role/Title is required.'
-    if (!formSpecialty.trim()) errors.specialty = 'Specialty is required.'
-    if (!formBio.trim()) errors.bio = 'Bio is required.'
+    if (!formRole.trim()) errors.role = 'role is required.'
+    if (!formSpecialty.trim()) errors.specialty = 'specialty is required.'
+    if (!formBio.trim()) errors.bio = 'bio is required.'
 
     // Slug ID format
     if (!editingId && formId && !/^[a-z0-9-]+$/.test(formId)) {
@@ -153,9 +155,6 @@ export default function TeamAdminPage() {
 
     // Character limits
     if (formName.length > 50) errors.name = 'Name must be 50 characters or less.'
-    if (formRole.length > 50) errors.role = 'Role must be 50 characters or less.'
-    if (formSpecialty.length > 60) errors.specialty = 'Specialty must be 60 characters or less.'
-    if (formBio.length > 300) errors.bio = 'Bio must be 300 characters or less.'
 
     setValidationErrors(errors)
     return Object.keys(errors).length === 0
@@ -167,7 +166,8 @@ export default function TeamAdminPage() {
     setErrorMsg('')
 
     if (!validateForm()) {
-      setErrorMsg('Please correct the validation errors below.')
+      setErrorMsg('Please correct validation errors. Note: fields are required.')
+      
       return
     }
 
@@ -177,11 +177,11 @@ export default function TeamAdminPage() {
     const payload = {
       id: finalId,
       name: formName,
+      instagram: formInstagram || '#',
+      linkedin: formLinkedin || '#',
       role: formRole,
       bio: formBio,
       specialty: formSpecialty,
-      instagram: formInstagram || '#',
-      linkedin: formLinkedin || '#'
     }
 
     try {
@@ -206,11 +206,7 @@ export default function TeamAdminPage() {
       }
 
       // Refresh list
-      const { data } = await supabase
-        .from('team_members')
-        .select('*')
-        .order('name', { ascending: true })
-      setTeam(data || [])
+      fetchTeam()
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err: any) {
       setErrorMsg(err.message || 'Error saving team member parameters.')
@@ -219,11 +215,13 @@ export default function TeamAdminPage() {
     }
   }
 
-  const filteredTeam = team.filter(t => 
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.specialty.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredTeam = team.filter(t => {
+    const role = t.role || ''
+    const spec = t.specialty || ''
+    return t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           spec.toLowerCase().includes(searchQuery.toLowerCase())
+  })
 
   return (
     <div className="space-y-8 select-none">
@@ -261,8 +259,8 @@ export default function TeamAdminPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Main List Selector + Form Editor (Left column: 8cols) */}
-          <div className="lg:col-span-8 space-y-6">
+          {/* Main List Selector + Form Editor (Left column) */}
+          <div className={`space-y-6 ${showForm ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
             
             {/* Horizontal Team Grid Selector */}
             <div className="bg-surface-base border border-border-theme p-4 rounded-2xl space-y-4">
@@ -276,14 +274,21 @@ export default function TeamAdminPage() {
                     type="text"
                     placeholder="Search crew..."
                     value={searchQuery}
+                      onFocus={() => setFocusedField('searchQuery')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border-theme bg-bg-base text-[11px] text-foreground focus:outline-none focus:border-[#ED3F27]/40 font-mono"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {filteredTeam.map((member) => (
+              {filteredTeam.length === 0 ? (
+                <div className="h-32 border border-dashed border-border-theme rounded-xl flex flex-col items-center justify-center text-center p-6 bg-surface-base">
+                  <p className="text-xs text-muted-text/50">No team members found matching query.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {filteredTeam.map((member) => (
                   <div 
                     key={member.id}
                     onClick={() => selectMember(member)}
@@ -313,25 +318,36 @@ export default function TeamAdminPage() {
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Split Form Editor Card */}
+            {showForm && (
             <form onSubmit={handleSubmit} className="bg-surface-base border border-border-theme p-6 rounded-2xl space-y-5">
               <div className="flex items-center justify-between border-b border-border-theme pb-2">
                 <h3 className="text-xs font-mono uppercase tracking-widest text-primary font-bold">
                   {editingId ? 'Edit Selected Member Details' : 'Register New Crew Member'}
                 </h3>
-                {editingId && (
+                <div className="flex items-center gap-4">
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={handleAddNew}
+                      className="text-[10px] font-mono text-[#00E5FF] hover:underline"
+                    >
+                      + Create New Instead
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={handleAddNew}
-                    className="text-[10px] font-mono text-[#00E5FF] hover:underline"
+                    onClick={() => setShowForm(false)}
+                    className="text-[10px] font-mono text-white/50 hover:text-white"
                   >
-                    + Add New Member
+                    Close [X]
                   </button>
-                )}
+                </div>
               </div>
 
               {successMsg && (
@@ -348,138 +364,159 @@ export default function TeamAdminPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* ID Slug */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Member ID Slug *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    disabled={!!editingId}
-                    placeholder="e.g. alex-sterling"
-                    value={formId}
-                    onChange={(e) => setFormId(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono disabled:opacity-40"
-                  />
-                  {validationErrors.id && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.id}</p>
-                  )}
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Role */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Role / Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Founder & Creative Director"
+                      value={formRole}
+                        onFocus={() => setFocusedField('formRole')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormRole(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
+                    />
+                    {validationErrors.role && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.role}</p>
+                    )}
+                  </div>
+
+                  {/* Specialty */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Specialty *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Brand Design & CGI"
+                      value={formSpecialty}
+                        onFocus={() => setFocusedField('formSpecialty')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormSpecialtie(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
+                    />
+                    {validationErrors.specialty && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.specialty}</p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Name */}
+                {/* Bio */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Full Name *
+                    Professional Bio *
                   </label>
-                  <input
-                    type="text"
+                  <textarea
                     required
-                    placeholder="e.g. Alex Sterling"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
+                    rows={4}
+                    placeholder="Describe their background, focus, and core creative philosophy..."
+                    value={formBio}
+                        onFocus={() => setFocusedField('formBio')}
+                        onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormBio(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none focus:border-[#ED3F27]/50 transition-all resize-none leading-relaxed"
                   />
-                  {validationErrors.name && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.name}</p>
+                  {validationErrors.bio && (
+                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.bio}</p>
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Role */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Role / Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Founder & Creative Director"
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
-                  />
-                  {validationErrors.role && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.role}</p>
-                  )}
+              {/* Global Settings */}
+              <div className="pt-4 border-t border-white/10 dir-ltr text-left space-y-5">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white/40">Global Settings</h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* ID Slug */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Member ID Slug *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      disabled={!!editingId}
+                      placeholder="e.g. alex-sterling"
+                      value={formId}
+                        onFocus={() => setFocusedField('formId')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormId(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono disabled:opacity-40"
+                    />
+                    {validationErrors.id && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.id}</p>
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Alex Sterling"
+                      value={formName}
+                        onFocus={() => setFocusedField('formName')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormName(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
+                    />
+                    {validationErrors.name && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.name}</p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Specialty */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Specialty *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Brand Design & CGI"
-                    value={formSpecialty}
-                    onChange={(e) => setFormSpecialty(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all"
-                  />
-                  {validationErrors.specialty && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.specialty}</p>
-                  )}
-                </div>
-              </div>
+                {/* Social Links */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Instagram URL
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://instagram.com/username or #"
+                      value={formInstagram}
+                        onFocus={() => setFocusedField('formInstagram')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormInstagram(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
+                    />
+                    {validationErrors.instagram && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.instagram}</p>
+                    )}
+                  </div>
 
-              {/* Bio */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                  Professional Bio *
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Describe their background, focus, and core creative philosophy..."
-                  value={formBio}
-                  onChange={(e) => setFormBio(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none focus:border-[#ED3F27]/50 transition-all resize-none leading-relaxed"
-                />
-                {validationErrors.bio && (
-                  <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.bio}</p>
-                )}
-              </div>
-
-              {/* Social Links */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Instagram URL
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="https://instagram.com/username or #"
-                    value={formInstagram}
-                    onChange={(e) => setFormInstagram(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
-                  />
-                  {validationErrors.instagram && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.instagram}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    LinkedIn URL
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="https://linkedin.com/in/username or #"
-                    value={formLinkedin}
-                    onChange={(e) => setFormLinkedin(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
-                  />
-                  {validationErrors.linkedin && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.linkedin}</p>
-                  )}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      LinkedIn URL
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="https://linkedin.com/in/username or #"
+                      value={formLinkedin}
+                        onFocus={() => setFocusedField('formLinkedin')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormLinkedin(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
+                    />
+                    {validationErrors.linkedin && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.linkedin}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Save button */}
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   type="submit"
                   disabled={actionLoading}
@@ -494,10 +531,12 @@ export default function TeamAdminPage() {
                 </button>
               </div>
             </form>
+            )}
           </div>
 
-          {/* Real-time Visual Card Preview (Right column: 4cols) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
+          {/* Real-time Visual Card Preview (Right column) */}
+          {showForm && (
+          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
             <div className="flex items-center justify-between border-b border-border-theme pb-2">
               <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-muted-text">
                 Live Card Preview
@@ -507,20 +546,23 @@ export default function TeamAdminPage() {
               </span>
             </div>
 
-            <TeamPreview
-              id={editingId || 'm1'}
-              name={formName}
-              role={formRole}
-              bio={formBio}
-              specialty={formSpecialty}
-              instagram={formInstagram}
-              linkedin={formLinkedin}
-            />
+            <div>
+              <TeamPreview
+                id={editingId || 'm1'}
+                name={formName}
+                role={formRole || formRole}
+                bio={formBio || formBio}
+                specialty={formSpecialty || formSpecialty}
+                instagram={formInstagram}
+                linkedin={formLinkedin}
+                focusedField={focusedField}
+              />
+            </div>
           </div>
+          )}
 
         </div>
       )}
     </div>
   )
 }
-

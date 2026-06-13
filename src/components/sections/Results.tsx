@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
 import { useCursor } from "@/context/CursorContext";
@@ -37,7 +37,58 @@ export default function Results({ data = [] }: ResultsProps) {
 
   useCountUp(containerRef);
 
-  if (data.length === 0) return null;
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = data.length === 0;
+
+  const displayData = isLoading ? [
+    {
+      id: "phantom-1",
+      label: "Loading Metric",
+      displayVal: "00.0",
+      rawVal: "0",
+      prefix: "",
+      suffix: "M+",
+      iconName: "Eye" as const,
+      color: "#ED3F27",
+      detail: "Loading detailed statistic explanation to fill space."
+    },
+    {
+      id: "phantom-2",
+      label: "Loading Metric",
+      displayVal: "00.0",
+      rawVal: "0",
+      prefix: "",
+      suffix: "M+",
+      iconName: "Users" as const,
+      color: "#ED3F27",
+      detail: "Loading detailed statistic explanation to fill space."
+    },
+    {
+      id: "phantom-3",
+      label: "Loading Metric",
+      displayVal: "00.0",
+      rawVal: "0",
+      prefix: "",
+      suffix: "M+",
+      iconName: "FolderKanban" as const,
+      color: "#ED3F27",
+      detail: "Loading detailed statistic explanation to fill space."
+    },
+    {
+      id: "phantom-4",
+      label: "Loading Metric",
+      displayVal: "00.0",
+      rawVal: "0",
+      prefix: "",
+      suffix: "M+",
+      iconName: "DollarSign" as const,
+      color: "#ED3F27",
+      detail: "Loading detailed statistic explanation to fill space."
+    }
+  ] : data;
 
   return (
     <section ref={containerRef} className="relative bg-bg-base py-space-6xl border-b border-white/5 overflow-hidden">
@@ -54,9 +105,10 @@ export default function Results({ data = [] }: ResultsProps) {
         />
 
         {/* Premium Stat Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-lg">
-          {data.map((stat) => {
-            const Icon = iconMap[stat.iconName] || Eye;
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-lg py-4">
+            {displayData.map((stat) => {
+              const Icon = iconMap[stat.iconName] || Eye;
             return (
               <motion.div
                 key={stat.id}
@@ -65,7 +117,7 @@ export default function Results({ data = [] }: ResultsProps) {
                   borderColor: "rgba(255, 255, 255, 0.15)",
                   transition: { duration: 0.3, ease: "easeOut" },
                 }}
-                className="group relative bg-surface-base border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[240px] overflow-hidden transition-all duration-300 hover:bg-surface-sec cursor-default"
+                className="group relative bg-surface-base border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[240px] overflow-hidden transition-all duration-300 hover:bg-surface-sec hover:z-10 cursor-default"
                 onMouseEnter={() => setCursorType("hover")}
                 onMouseLeave={() => setCursorType("default")}
               >
@@ -124,7 +176,8 @@ export default function Results({ data = [] }: ResultsProps) {
               </motion.div>
             );
           })}
-        </div>
+          </div>
+        </phantom-ui>
       </Container>
     </section>
   );

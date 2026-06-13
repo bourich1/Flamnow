@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 import { createClient } from "@/lib/supabase/client";
 import MobileMenu from "./MobileMenu";
 import MagneticButton from "../ui/MagneticButton";
 
+
 const menuLinks = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
-  { href: "/design-system", label: "Tokens" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -64,26 +64,6 @@ export default function Navbar() {
   const isAdminRoute = pathname?.startsWith('/admin');
   if (isAdminRoute) return null;
 
-  const renderLogoText = () => {
-    const upper = siteName.toUpperCase();
-    if (upper === "FLAMNOW") {
-      return (
-        <>
-          FLAM<span className="text-[#ED3F27] transition-all duration-300 group-hover:blur-[1px]">NOW</span>
-        </>
-      );
-    }
-    if (upper.endsWith("NOW") && siteName.length > 3) {
-      const first = siteName.slice(0, -3);
-      const last = siteName.slice(-3);
-      return (
-        <>
-          {first}<span className="text-[#ED3F27] transition-all duration-300 group-hover:blur-[1px]">{last}</span>
-        </>
-      );
-    }
-    return siteName;
-  };
 
   return (
     <>
@@ -105,10 +85,13 @@ export default function Navbar() {
             onMouseEnter={() => setCursorType("hover")}
             onMouseLeave={() => setCursorType("default")}
           >
-            <span className="text-2xl font-black tracking-tighter text-white">
-              {renderLogoText()}
-            </span>
-            <span className="h-2 w-2 rounded-full bg-[#ED3F27] group-hover:scale-150 transition-all duration-300"></span>
+            <div className="flex items-center">
+              <img 
+                src="/logo-light.png" 
+                alt={siteName || "Flamnow Logo"} 
+                className="h-8 md:h-10 w-auto object-contain transition-all duration-300 group-hover:scale-105" 
+              />
+            </div>
           </Link>
 
           {/* Desktop Nav Links */}
@@ -139,7 +122,9 @@ export default function Navbar() {
           </nav>
 
           {/* Contact CTA & Burger Toggle */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 md:gap-6">
+
+            
             <div className="hidden md:block">
               <MagneticButton
                 href="/contact"

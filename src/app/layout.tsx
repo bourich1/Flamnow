@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import "@aejkatappaja/phantom-ui/ssr.css";
+
 import { CursorProvider } from "@/context/CursorContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
+import CustomCursor from "@/components/ui/CustomCursor";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
 });
-
-import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = {
@@ -22,7 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 
   try {
-    const supabase = await createClient();
+    const supabase = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     const { data } = await supabase
       .from("site_settings")
       .select("value")
@@ -51,12 +56,12 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Flamnow Creative" }],
     metadataBase: new URL("https://flamnow.com"),
     alternates: {
-      canonical: "/"
+      canonical: `/`,
     },
     openGraph: {
       title: seo.title,
       description: seo.description,
-      url: "https://flamnow.com",
+      url: `https://flamnow.com/`,
       siteName: siteBrand,
       images: [
         {
@@ -86,6 +91,10 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-image-preview": "large",
         "max-snippet": -1
       }
+    },
+    icons: {
+      icon: '/icon-light.png',
+      apple: '/icon-light.png',
     }
   };
 }
@@ -96,10 +105,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" dir="ltr" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-body select-none scroll-smooth" suppressHydrationWarning>
         <script dangerouslySetInnerHTML={{ __html: 'var r=function(){document.querySelectorAll("[bis_skin_checked],[bis_register]").forEach(function(e){e.removeAttribute("bis_skin_checked");e.removeAttribute("bis_register")})};r();if(typeof MutationObserver!=="undefined"){var o=new MutationObserver(function(m){m.forEach(function(mut){if(mut.type==="attributes"){var a=mut.attributeName;if(a==="bis_skin_checked"||a==="bis_register"){mut.target.removeAttribute(a)}}})});o.observe(document.documentElement,{attributes:true,subtree:true,attributeFilter:["bis_skin_checked","bis_register"]})}' }} />
         <CursorProvider>
+          <CustomCursor />
           <AnalyticsTracker />
           <Navbar />
           <main className="flex-grow flex flex-col overflow-x-hidden">{children}</main>

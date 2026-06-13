@@ -7,8 +7,8 @@ interface FooterPreviewProps {
   contactEmail: string
   contactPhone: string
   instagram: string
-  linkedin: string
-  twitter: string
+  whatsapp: string
+  facebook: string
 }
 
 export default function FooterPreview({
@@ -16,8 +16,8 @@ export default function FooterPreview({
   contactEmail,
   contactPhone,
   instagram,
-  linkedin,
-  twitter
+  whatsapp,
+  facebook
 }: FooterPreviewProps) {
   const nameFirstPart = siteName.slice(0, Math.ceil(siteName.length / 2)).toUpperCase()
   const nameSecondPart = siteName.slice(Math.ceil(siteName.length / 2)).toUpperCase()
@@ -49,8 +49,8 @@ export default function FooterPreview({
               <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest block">Connect</span>
               <div className="text-[9px] text-white/60 space-y-1 flex flex-col">
                 <a href={instagram} target="_blank" rel="noreferrer" className="hover:text-[#ED3F27]">Instagram</a>
-                <a href={linkedin} target="_blank" rel="noreferrer" className="hover:text-[#ED3F27]">LinkedIn</a>
-                <a href={twitter} target="_blank" rel="noreferrer" className="hover:text-[#ED3F27]">Twitter / X</a>
+                <a href={whatsapp} target="_blank" rel="noreferrer" className="hover:text-[#ED3F27]">WhatsApp</a>
+                <a href={facebook} target="_blank" rel="noreferrer" className="hover:text-[#ED3F27]">Facebook</a>
               </div>
             </div>
 

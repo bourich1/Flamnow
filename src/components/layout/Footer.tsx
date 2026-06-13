@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useCursor } from "@/context/CursorContext";
 import MagneticButton from "../ui/MagneticButton";
 
@@ -11,7 +11,6 @@ const footerLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
-  { href: "/design-system", label: "Tokens" },
   { href: "/contact", label: "Contact" },
 ];
 import { createClient } from "@/lib/supabase/client";
@@ -31,8 +30,8 @@ export default function Footer() {
   });
   const [socials, setSocials] = useState([
     { href: "#", label: "Instagram" },
-    { href: "#", label: "LinkedIn" },
-    { href: "#", label: "Twitter" }
+    { href: "#", label: "WhatsApp" },
+    { href: "#", label: "Facebook" }
   ]);
   const pathname = usePathname();
 
@@ -63,8 +62,8 @@ export default function Footer() {
               } else {
                 const arr = [];
                 if (val.instagram && val.instagram !== "#") arr.push({ href: val.instagram, label: "Instagram" });
-                if (val.linkedin && val.linkedin !== "#") arr.push({ href: val.linkedin, label: "LinkedIn" });
-                if (val.twitter && val.twitter !== "#") arr.push({ href: val.twitter, label: "Twitter" });
+                if (val.whatsapp && val.whatsapp !== "#") arr.push({ href: val.whatsapp, label: "WhatsApp" });
+                if (val.facebook && val.facebook !== "#") arr.push({ href: val.facebook, label: "Facebook" });
                 if (arr.length > 0) {
                   setSocials(arr);
                 }
@@ -85,26 +84,7 @@ export default function Footer() {
   const isAdminRoute = pathname?.startsWith('/admin');
   if (isAdminRoute) return null;
 
-  const renderLogoText = () => {
-    const upper = siteName.toUpperCase();
-    if (upper === "FLAMNOW") {
-      return (
-        <>
-          FLAM<span className="text-[#ED3F27]">NOW</span>
-        </>
-      );
-    }
-    if (upper.endsWith("NOW") && siteName.length > 3) {
-      const first = siteName.slice(0, -3);
-      const last = siteName.slice(-3);
-      return (
-        <>
-          {first}<span className="text-[#ED3F27]">{last}</span>
-        </>
-      );
-    }
-    return siteName;
-  };
+
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,10 +110,13 @@ export default function Footer() {
                 onMouseEnter={() => setCursorType("hover")}
                 onMouseLeave={() => setCursorType("default")}
               >
-                <span className="text-3xl font-black tracking-tighter text-white">
-                  {renderLogoText()}
-                </span>
-                <span className="h-2.5 w-2.5 rounded-full bg-[#ED3F27]"></span>
+                <div className="flex items-center">
+                  <img 
+                    src="/logo-light.png" 
+                    alt={siteName || "Flamnow Logo"} 
+                    className="h-8 md:h-10 w-auto object-contain transition-all duration-300 group-hover:scale-105" 
+                  />
+                </div>
               </Link>
               <p className="text-white/60 max-w-md text-base leading-relaxed mb-8">
                 We design bold identities, high-performance campaigns, and premium digital flagships for brands ready to ignite and conquer.

@@ -6,8 +6,8 @@ import { NextResponse, type NextRequest } from 'next/server'
  * This ensures that the user's session remains active and secure,
  * and updates cookies correctly on both the request and response.
  */
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
+export async function updateSession(request: NextRequest, existingResponse?: NextResponse) {
+  let response = existingResponse || NextResponse.next({
     request,
   })
 

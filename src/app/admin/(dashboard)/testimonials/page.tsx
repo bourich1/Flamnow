@@ -7,7 +7,6 @@ import {
   MessageSquare, 
   Plus, 
   Search, 
-  Edit2, 
   Trash2, 
   Check, 
   Loader2, 
@@ -32,18 +31,22 @@ export default function TestimonialsAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
   
-  // Form States
+  // Form States (Global)
   const [formId, setFormId] = useState('')
   const [formName, setFormName] = useState('')
-  const [formRole, setFormRole] = useState('')
   const [formCompany, setFormCompany] = useState('')
-  const [formQuote, setFormQuote] = useState('')
   const [formMetric, setFormMetric] = useState('')
+  
+  // Form States
+  const [formRole, setFormRole] = useState('')
+  const [formQuote, setFormQuote] = useState('')
   const [formMetricLabel, setFormMetricLabel] = useState('')
 
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -61,12 +64,6 @@ export default function TestimonialsAdminPage() {
       if (error) throw error
       const tList = data || []
       setTestimonials(tList)
-
-      if (tList.length > 0) {
-        selectTestimonial(tList[0])
-      } else {
-        handleAddNew()
-      }
     } catch (err) {
       console.error('Error fetching testimonials:', err)
     } finally {
@@ -78,28 +75,36 @@ export default function TestimonialsAdminPage() {
     setEditingId(testimonial.id)
     setFormId(testimonial.id)
     setFormName(testimonial.name)
-    setFormRole(testimonial.role)
     setFormCompany(testimonial.company)
-    setFormQuote(testimonial.quote)
     setFormMetric(testimonial.metric || '')
+    
+    setFormRole(testimonial.role || '')
+    setFormQuote(testimonial.quote || '')
     setFormMetricLabel(testimonial.metric_label || '')
+
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+    
+    setShowForm(true)
   }
 
   const handleAddNew = () => {
     setEditingId(null)
     setFormId('')
     setFormName('Marcus Thorne')
-    setFormRole('VP of Global Marketing')
     setFormCompany('Volt Audio')
-    setFormQuote('Explain how our custom strategic execution helped reshape identity.')
     setFormMetric('+300%')
+    
+    setFormRole('VP of Global Marketing')
+    setFormQuote('Explain how our custom strategic execution helped reshape identity.')
     setFormMetricLabel('Social Engagement Boost')
+
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+    
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -115,11 +120,7 @@ export default function TestimonialsAdminPage() {
       const remaining = testimonials.filter(t => t.id !== id)
       setTestimonials(remaining)
       setSuccessMsg('Testimonial deleted successfully.')
-      if (remaining.length > 0) {
-        selectTestimonial(remaining[0])
-      } else {
-        handleAddNew()
-      }
+      setShowForm(false)
       setTimeout(() => setSuccessMsg(''), 3000)
     } catch (err: any) {
       alert(err.message || 'Error deleting testimonial')
@@ -134,9 +135,9 @@ export default function TestimonialsAdminPage() {
     // Required fields
     if (!formId.trim() && !editingId) errors.id = 'Testimonial Slug ID is required.'
     if (!formName.trim()) errors.name = 'Author name is required.'
-    if (!formRole.trim()) errors.role = 'Author role is required.'
     if (!formCompany.trim()) errors.company = 'Company is required.'
-    if (!formQuote.trim()) errors.quote = 'Testimonial quote is required.'
+    if (!formRole.trim()) errors.role = 'role is required.'
+    if (!formQuote.trim()) errors.quote = 'testimonial quote is required.'
 
     // Slug formatting
     if (!editingId && formId && !/^[a-z0-9-]+$/.test(formId)) {
@@ -145,8 +146,6 @@ export default function TestimonialsAdminPage() {
 
     // Character limits
     if (formName.length > 50) errors.name = 'Author name must be 50 characters or less.'
-    if (formRole.length > 60) errors.role = 'Role must be 60 characters or less.'
-    if (formQuote.length > 350) errors.quote = 'Quote must be 350 characters or less.'
 
     setValidationErrors(errors)
     return Object.keys(errors).length === 0
@@ -158,7 +157,8 @@ export default function TestimonialsAdminPage() {
     setErrorMsg('')
 
     if (!validateForm()) {
-      setErrorMsg('Please correct the validation errors below.')
+      setErrorMsg('Please correct validation errors. Note: fields are required.')
+      
       return
     }
 
@@ -168,11 +168,11 @@ export default function TestimonialsAdminPage() {
     const payload = {
       id: finalId,
       name: formName,
-      role: formRole,
       company: formCompany,
-      quote: formQuote,
       metric: formMetric,
-      metric_label: formMetricLabel
+      role: formRole,
+      quote: formQuote,
+      metric_label: formMetricLabel,
     }
 
     try {
@@ -190,14 +190,11 @@ export default function TestimonialsAdminPage() {
         if (error) throw error
         setSuccessMsg('New testimonial created.')
         setEditingId(finalId)
+        setShowForm(false)
       }
 
       // Refresh list
-      const { data } = await supabase
-        .from('testimonials')
-        .select('*')
-        .order('company', { ascending: true })
-      setTestimonials(data || [])
+      fetchTestimonials()
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err: any) {
       setErrorMsg(err.message || 'Error saving testimonial record.')
@@ -224,7 +221,7 @@ export default function TestimonialsAdminPage() {
             Testimonials Editor
           </h2>
           <p className="text-xs text-muted-text mt-1">
-            Manage client praise, endorsements, and growth metrics. Previews update in real-time.
+            Manage client praise, endorsements, and growth metrics.
           </p>
         </div>
 
@@ -248,7 +245,7 @@ export default function TestimonialsAdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Main List Selector + Form Editor (Left column) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className={`space-y-6 ${showForm ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
             
             {/* Horizontal Registry Selector */}
             <div className="bg-surface-base border border-border-theme p-4 rounded-2xl space-y-4">
@@ -263,14 +260,21 @@ export default function TestimonialsAdminPage() {
                     type="text"
                     placeholder="Search testimonials..."
                     value={searchQuery}
+                      onFocus={() => setFocusedField('searchQuery')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border-theme bg-bg-base text-[11px] text-foreground focus:outline-none"
+                    className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border-theme bg-bg-base text-[11px] text-foreground focus:outline-none focus:border-[#BF5AF2]/40"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {filteredTestimonials.map((t) => (
+              {filteredTestimonials.length === 0 ? (
+                <div className="h-32 border border-dashed border-border-theme rounded-xl flex flex-col items-center justify-center text-center p-6 bg-surface-base">
+                  <p className="text-xs text-muted-text/50">No testimonials found matching query.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {filteredTestimonials.map((t) => (
                   <div 
                     key={t.id}
                     onClick={() => selectTestimonial(t)}
@@ -300,25 +304,36 @@ export default function TestimonialsAdminPage() {
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Split Form Editor Card */}
+            {showForm && (
             <form onSubmit={handleSubmit} className="bg-surface-base border border-border-theme p-6 rounded-2xl space-y-5">
               <div className="flex items-center justify-between border-b border-border-theme pb-2">
                 <h3 className="text-xs font-mono uppercase tracking-widest text-[#BF5AF2] font-bold">
                   {editingId ? 'Edit Selected Endorsement' : 'Register New Endorsement'}
                 </h3>
-                {editingId && (
+                <div className="flex items-center gap-4">
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={handleAddNew}
+                      className="text-[10px] font-mono text-primary hover:underline"
+                    >
+                      + Create New Instead
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={handleAddNew}
-                    className="text-[10px] font-mono text-primary hover:underline"
+                    onClick={() => setShowForm(false)}
+                    className="text-[10px] font-mono text-white/50 hover:text-white"
                   >
-                    + Switch to New testimonial
+                    Close [X]
                   </button>
-                )}
+                </div>
               </div>
 
               {successMsg && (
@@ -335,46 +350,8 @@ export default function TestimonialsAdminPage() {
                 </div>
               )}
 
-              {/* Slug ID & Author Name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Testimonial Slug ID *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    disabled={!!editingId}
-                    placeholder="e.g. marcus-thorne"
-                    value={formId}
-                    onChange={(e) => setFormId(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all font-mono disabled:opacity-40"
-                  />
-                  {validationErrors.id && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.id}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Client Author Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Marcus Thorne"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50"
-                  />
-                  {validationErrors.name && (
-                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.name}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Role & Company */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-5">
+                {/* Role */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
                     Author Job Title / Role *
@@ -384,75 +361,130 @@ export default function TestimonialsAdminPage() {
                     required
                     placeholder="e.g. VP of Global Marketing"
                     value={formRole}
+                        onFocus={() => setFocusedField('formRole')}
+                        onBlur={() => setFocusedField(null)}
                     onChange={(e) => setFormRole(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50"
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all"
                   />
                   {validationErrors.role && (
                     <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.role}</p>
                   )}
                 </div>
 
+                {/* Quote Statement */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Company Name *
+                    Advocacy Quote *
                   </label>
-                  <input
-                    type="text"
+                  <textarea
                     required
-                    placeholder="e.g. Volt Audio"
-                    value={formCompany}
-                    onChange={(e) => setFormCompany(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50"
+                    rows={4}
+                    placeholder="Paste the testimonial quote statement..."
+                    value={formQuote}
+                        onFocus={() => setFocusedField('formQuote')}
+                        onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormQuote(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 resize-none transition-all"
                   />
-                </div>
-              </div>
-
-              {/* Quote Statement */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                  Advocacy Quote *
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Paste the testimonial quote statement..."
-                  value={formQuote}
-                  onChange={(e) => setFormQuote(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 resize-none"
-                />
-                {validationErrors.quote && (
-                  <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.quote}</p>
-                )}
-              </div>
-
-              {/* Metrics */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Growth Metric Value *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. +300% or 250K+"
-                    value={formMetric}
-                    onChange={(e) => setFormMetric(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 font-mono"
-                  />
+                  {validationErrors.quote && (
+                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.quote}</p>
+                  )}
                 </div>
 
+                {/* Metric Label */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                    Metric Label *
-                  </label>
+                    Metric Label </label>
                   <input
                     type="text"
-                    required
                     placeholder="e.g. Social Engagement Boost"
                     value={formMetricLabel}
+                        onFocus={() => setFocusedField('formMetricLabel')}
+                        onBlur={() => setFocusedField(null)}
                     onChange={(e) => setFormMetricLabel(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50"
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all"
                   />
+                </div>
+              </div>
+
+              {/* Global Settings */}
+              <div className="pt-4 border-t border-white/10 dir-ltr text-left space-y-5">
+                <h4 className="text-xs font-mono font-bold uppercase tracking-widest text-white/40">Global Settings</h4>
+                
+                {/* Slug ID & Author Name */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Testimonial Slug ID *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      disabled={!!editingId}
+                      placeholder="e.g. marcus-thorne"
+                      value={formId}
+                        onFocus={() => setFocusedField('formId')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormId(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all font-mono disabled:opacity-40"
+                    />
+                    {validationErrors.id && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.id}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Client Author Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Marcus Thorne"
+                      value={formName}
+                        onFocus={() => setFocusedField('formName')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormName(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all"
+                    />
+                    {validationErrors.name && (
+                      <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.name}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Company & Metric */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Company Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Volt Audio"
+                      value={formCompany}
+                        onFocus={() => setFocusedField('formCompany')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormCompany(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                      Growth Metric Value
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. +300% or 250K+"
+                      value={formMetric}
+                        onFocus={() => setFocusedField('formMetric')}
+                        onBlur={() => setFocusedField(null)}
+                      onChange={(e) => setFormMetric(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#BF5AF2]/50 transition-all font-mono"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -472,10 +504,12 @@ export default function TestimonialsAdminPage() {
               </div>
 
             </form>
+            )}
           </div>
 
-          {/* Real-time Preview (Right column) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
+          {/* Right column: Preview */}
+          {showForm && (
+          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
             <div className="flex items-center justify-between border-b border-border-theme pb-2">
               <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-muted-text">
                 Live Testimonial Preview
@@ -485,17 +519,20 @@ export default function TestimonialsAdminPage() {
               </span>
             </div>
 
-            <TestimonialPreview
-              id={editingId || 't1'}
-              name={formName}
-              role={formRole}
-              company={formCompany}
-              quote={formQuote}
-              metric={formMetric}
-              metric_label={formMetricLabel}
-            />
+            <div>
+              <TestimonialPreview
+                id={editingId || 't1'}
+                name={formName}
+                role={formRole || formRole}
+                company={formCompany}
+                quote={formQuote || formQuote}
+                metric={formMetric}
+                metric_label={formMetricLabel || formMetricLabel}
+                focusedField={focusedField}
+              />
+            </div>
           </div>
-
+          )}
         </div>
       )}
     </div>

@@ -11,6 +11,7 @@ import CTA from "@/components/sections/CTA";
 import { Agentation } from "agentation";
 import { createClient } from "@/lib/supabase/server";
 
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -33,7 +34,7 @@ export default async function Home() {
     supabase.from("site_settings").select("value").eq("key", "results_stats").single(),
     supabase.from("projects").select("*").order("title", { ascending: true }),
     supabase.from("testimonials").select("*"),
-    supabase.from("faqs").select("*"),
+    supabase.from("faqs").select("*").order("question", { ascending: true }),
     supabase.from("site_settings").select("value").eq("key", "contact_cta").single(),
     supabase.from("site_settings").select("value").eq("key", "why_flamnow_value_props").single(),
     supabase.from("site_settings").select("value").eq("key", "process_steps").single()
@@ -41,17 +42,47 @@ export default async function Home() {
 
   const clientNames = clientsData ? clientsData.map((c) => c.name) : [];
   const heroData = heroSettings?.value || undefined;
-  const servicesList = (servicesData || []) as any[];
   const resultsData = resultsSettings?.value || [];
-  const projectsList = (projectsData || []) as any[];
-  const testimonialsList = (testimonialsData || []) as any[];
-  const faqsList = (faqsData || []) as any[];
   const ctaData = ctaSettings?.value || undefined;
   const whyData = whySettings?.value || undefined;
   const processData = processSettings?.value || undefined;
 
+  // Localize collections
+  const servicesList = (servicesData || []).map(s => ({
+    ...s,
+    title: s.title,
+    tagline: s.tagline,
+    description: s.description,
+    features: s.features,
+    benefits: s.benefits,
+  }));
+
+  const projectsList = (projectsData || []).map(p => ({
+    ...p,
+    title: p.title,
+    tagline: p.tagline,
+    description: p.description,
+    category: p.category,
+    client: p.client,
+    year: p.year,
+    results: p.results,
+  }));
+
+  const testimonialsList = (testimonialsData || []).map(t => ({
+    ...t,
+    author: t.author,
+    role: t.role,
+    quote: t.quote,
+  }));
+
+  const faqsList = (faqsData || []).map(f => ({
+    ...f,
+    question: f.question,
+    answer: f.answer,
+  }));
+
   return (
-    <div className="relative w-full flex flex-col bg-bg-base">
+    <div className={`relative w-full flex flex-col bg-bg-base dir-ltr`}>
       {/* 1. Hero Section */}
       <Hero data={heroData} />
 

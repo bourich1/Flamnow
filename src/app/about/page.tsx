@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 import { createClient } from "@/lib/supabase/client";
+
+
 import Container from "@/components/layout/Container";
 import SectionHeader from "@/components/ui/SectionHeader";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -45,22 +47,46 @@ const defaultValues = [
 
 export default function AboutPage() {
   const { setCursorType } = useCursor();
+  
   const supabase = createClient();
   const [team, setTeam] = useState<TeamMemberItem[]>([]);
   const [values, setValues] = useState<any[]>(defaultValues);
+  const [pageContent, setPageContent] = useState<any>({
+    narrativeTitle: "Fueling Category Leaders.",
+    narrativeDesc1: "Flamnow was founded on a singular conviction: design is a product's primary business leverage. We fuse artistic direction with performant code to stoke brands that outscale the generic.",
+    narrativeSubtitle: "We only build things that burn indelibly.",
+    narrativeDesc2: "The digital arena is crowded, noisy, and template-driven. Algorithms promote visual monotony, and platforms encourage brands to blend in. We built Flamnow to challenge this aesthetic decay. We do not do template layouts, stock layouts, or lukewarm ad copy.",
+    narrativeDesc3: "We operate as a tight team of multidisciplinary creators: strategic researchers, high-fidelity developers, and CGI artists. By keeping our team integrated, we bypass corporate bloat and ship state-of-the-art products at speed.",
+    missionTitle: "To dismantle the generic, stoke visual authority, and make compromises obsolete.",
+    narrativeTag: "Our Narrative",
+    missionTag: "Our Mission",
+    philosophyTag: "Core Philosophy",
+    philosophyTitle: "What Stokes Us.",
+    philosophyDesc: "Our decisions are guided by three values that ensure creativity maps to financial performance.",
+    teamTag: "The Crew",
+    teamTitle: "Creative Athletes.",
+    teamDesc: "Meet the core minds stoking Flamnow's designs, codes, and attribution frameworks."
+  });
 
   useEffect(() => {
     async function fetchData() {
       const [teamRes, settingsRes] = await Promise.all([
         supabase.from("team_members").select("*").order("name", { ascending: true }),
-        supabase.from("site_settings").select("value").eq("key", "about_values").single()
+        supabase.from("site_settings").select("*").in("key", ["about_values", "about_page_content"])
       ]);
       
       if (!teamRes.error && teamRes.data) {
         setTeam(teamRes.data);
       }
-      if (!settingsRes.error && settingsRes.data && settingsRes.data.value) {
-        setValues(settingsRes.data.value);
+      if (!settingsRes.error && settingsRes.data) {
+        const configList = settingsRes.data;
+        configList.forEach((item: any) => {
+          if (item.key === "about_values") {
+            setValues(item.value || defaultValues);
+          } else if (item.key === "about_page_content") {
+            setPageContent(item.value);
+          }
+        });
       }
     }
     fetchData();
@@ -77,27 +103,27 @@ export default function AboutPage() {
         {/* Section 1: Story (Header & Narrative) */}
         <div className="flex flex-col gap-space-4xl">
           <div className="flex flex-col gap-6 max-w-2xl">
-            <span className="text-xs font-bold uppercase tracking-widest text-primary-base">Our Narrative</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary-base">{pageContent.narrativeTag || "Our Narrative"}</span>
             <h1 className="text-5xl sm:text-7xl font-black uppercase tracking-tight text-white-base leading-tight font-display">
-              Fueling Category Leaders.
+              {pageContent.narrativeTitle}
             </h1>
-            <p className="text-white-base/60 text-lg leading-relaxed font-body">
-              Flamnow was founded on a singular conviction: design is a product&apos;s primary business leverage. We fuse artistic direction with performant code to stoke brands that outscale the generic.
+            <p className="text-white-base/60 text-lg leading-relaxed font-body whitespace-pre-wrap">
+              {pageContent.narrativeDesc1}
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 border-t border-white-base/10 pt-space-lg">
             <div className="lg:col-span-5">
               <h2 className="text-3xl font-black uppercase tracking-tight text-white-base leading-tight font-display">
-                We only build things that burn indelibly.
+                {pageContent.narrativeSubtitle}
               </h2>
             </div>
             <div className="lg:col-span-7 flex flex-col gap-6 text-white-base/60 leading-relaxed text-sm sm:text-base font-body">
-              <p>
-                The digital arena is crowded, noisy, and template-driven. Algorithms promote visual monotony, and platforms encourage brands to blend in. We built Flamnow to challenge this aesthetic decay. We do not do template layouts, stock layouts, or lukewarm ad copy.
+              <p className="whitespace-pre-wrap">
+                {pageContent.narrativeDesc2}
               </p>
-              <p>
-                We operate as a tight team of multidisciplinary creators: strategic researchers, high-fidelity developers, and CGI artists. By keeping our team integrated, we bypass corporate bloat and ship state-of-the-art products at speed.
+              <p className="whitespace-pre-wrap">
+                {pageContent.narrativeDesc3}
               </p>
             </div>
           </div>
@@ -110,10 +136,10 @@ export default function AboutPage() {
           <div className="flex flex-col gap-4 max-w-2xl">
             <div className="flex items-center gap-2 text-primary-base">
               <Target className="h-5 w-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">Our Mission</span>
+              <span className="text-xs font-bold uppercase tracking-widest">{pageContent.missionTag || "Our Mission"}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white-base uppercase tracking-tight font-display leading-tight">
-              To dismantle the generic, stoke visual authority, and make compromises obsolete.
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white-base uppercase tracking-tight font-display leading-tight whitespace-pre-wrap">
+              {pageContent.missionTitle}
             </h2>
           </div>
 
@@ -130,9 +156,9 @@ export default function AboutPage() {
         {/* Section 3: Values */}
         <div className="flex flex-col gap-space-4xl">
           <SectionHeader
-            tag="Core Philosophy"
-            title="What Stokes Us."
-            description="Our decisions are guided by three values that ensure creativity maps to financial performance."
+            tag={pageContent.philosophyTag || "Core Philosophy"}
+            title={pageContent.philosophyTitle || "What Stokes Us."}
+            description={pageContent.philosophyDesc || "Our decisions are guided by three values that ensure creativity maps to financial performance."}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
@@ -162,9 +188,9 @@ export default function AboutPage() {
         {team.length > 0 && (
           <div className="flex flex-col gap-space-4xl">
             <SectionHeader
-              tag="The Crew"
-              title="Creative Athletes."
-              description="Meet the core minds stoking Flamnow's designs, codes, and attribution frameworks."
+              tag={pageContent.teamTag || "The Crew"}
+              title={pageContent.teamTitle || "Creative Athletes."}
+              description={pageContent.teamDesc || "Meet the core minds stoking Flamnow's designs, codes, and attribution frameworks."}
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-lg">

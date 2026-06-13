@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { Send, CheckCircle, Mail, MapPin, Phone, Sparkles, MessageCircle, ArrowUpRight, Loader2, Info } from "lucide-react";
+import { Bars } from "@/components/bars";
 import { submitContactForm } from "@/app/actions/contact";
+import { playSound } from "@/lib/sounds";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -119,7 +121,7 @@ export default function ContactPage() {
 
   const renderSocialsList = () => {
     return Object.entries(socials)
-      .filter(([, href]) => href && href !== "#")
+      .filter(([name, href]) => href && href !== "#" && name.toLowerCase() !== "whatsapp")
       .map(([name, href]) => {
         const key = name.toLowerCase();
         const svg = socialIcons[key] || socialIcons.linkedin;
@@ -184,6 +186,7 @@ export default function ContactPage() {
         setSubmitError(result.error);
       } else {
         setFormSubmitted(true);
+        playSound('sent');
       }
     } catch {
       setSubmitError("An unexpected error occurred. Please try again.");
@@ -264,31 +267,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* WHATSAPP CTA CARD */}
-            <div className="bg-green-500/[0.03] border border-green-500/10 rounded-card p-6 flex flex-col gap-4 relative overflow-hidden backdrop-blur-sm">
-              <div className="absolute top-0 right-0 h-24 w-24 rounded-full bg-green-500/5 blur-2xl pointer-events-none" />
-              <div className="flex items-center gap-2.5 text-green-400">
-                <MessageCircle className="h-5 w-5" />
-                <span className="text-[10px] font-bold uppercase tracking-widest font-mono">REAL-TIME CHAT</span>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold uppercase text-white font-display mb-1">Stoke via WhatsApp</h3>
-                <p className="text-white/50 text-xs leading-relaxed font-sans max-w-sm">
-                  Need to move faster? Reach out to our lead growth strategist directly on WhatsApp to discuss your timeline immediately.
-                </p>
-              </div>
-              <a
-                href={contacts.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-green-500 hover:bg-green-600 text-white font-bold uppercase tracking-widest text-[10px] py-3 px-6 transition-all duration-300 w-full md:w-fit self-start"
-                onMouseEnter={() => setCursorType("hover")}
-                onMouseLeave={() => setCursorType("default")}
-              >
-                <span>Instant Message</span>
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
-            </div>
+
 
             {/* SOCIAL LINKS */}
             <div className="flex flex-col gap-3">
@@ -491,7 +470,7 @@ export default function ContactPage() {
                       {isSubmitting ? (
                         <>
                           <span>Triggering Ignition...</span>
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <Bars className="h-5 w-6 text-white group-hover:text-[#ed3f27]" />
                         </>
                       ) : (
                         <>

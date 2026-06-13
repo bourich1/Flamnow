@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useCursor } from "@/context/CursorContext";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -77,7 +77,44 @@ export default function Projects({ projects = [] }: ProjectsProps) {
     );
   }, { dependencies: [activeCategory], scope: containerRef });
 
-  if (projects.length === 0) return null;
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = projects.length === 0;
+
+  const displayProjects = isLoading ? [
+    {
+      id: "phantom-1",
+      title: "Loading Project Name",
+      client: "Placeholder",
+      category: "Digital" as const,
+      year: "2024",
+      description: "Loading description that occupies two lines to form a skeleton.",
+      color: "#ED3F27",
+      cover_image: "/volt_cover.png"
+    },
+    {
+      id: "phantom-2",
+      title: "Loading Project Name",
+      client: "Placeholder",
+      category: "Digital" as const,
+      year: "2024",
+      description: "Loading description that occupies two lines to form a skeleton.",
+      color: "#ED3F27",
+      cover_image: "/volt_cover.png"
+    },
+    {
+      id: "phantom-3",
+      title: "Loading Project Name",
+      client: "Placeholder",
+      category: "Digital" as const,
+      year: "2024",
+      description: "Loading description that occupies two lines to form a skeleton.",
+      color: "#ED3F27",
+      cover_image: "/volt_cover.png"
+    }
+  ] : filteredProjects;
 
   return (
     <section ref={containerRef} className="relative bg-bg-base py-space-6xl border-b border-white/5 overflow-hidden">
@@ -112,9 +149,10 @@ export default function Projects({ projects = [] }: ProjectsProps) {
         </div>
 
         {/* Responsive Card Grid */}
-        <div className="project-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {filteredProjects.map((project) => {
-            const coverImg = project.cover_image || project.coverImage || "/volt_cover.png";
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="project-grid-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {displayProjects.map((project) => {
+              const coverImg = project.cover_image || project.coverImage || "/volt_cover.png";
             return (
               <div
                 key={project.id}
@@ -186,7 +224,8 @@ export default function Projects({ projects = [] }: ProjectsProps) {
               </div>
             );
           })}
-        </div>
+          </div>
+        </phantom-ui>
 
         {/* Explore Showcase Footer Button */}
         <div className="text-center mt-space-md">

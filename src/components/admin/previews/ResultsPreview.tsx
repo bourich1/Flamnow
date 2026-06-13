@@ -20,6 +20,7 @@ interface ResultsPreviewProps {
   iconName: 'Eye' | 'Users' | 'FolderKanban' | 'DollarSign'
   color: string
   detail: string
+  focusedField?: string | null
 }
 
 export default function ResultsPreview({
@@ -30,7 +31,11 @@ export default function ResultsPreview({
   iconName,
   color,
   detail,
+  focusedField,
 }: ResultsPreviewProps) {
+  const getHighlight = (field: string) => {
+    return focusedField === field ? 'ring-2 ring-[#ED3F27] rounded transition-all' : ''
+  }
   const Icon = iconMap[iconName] || Eye
 
   return (
@@ -48,7 +53,7 @@ export default function ResultsPreview({
       {/* Card Top: Icon & Indicator */}
       <div className="flex justify-between items-center">
         <div
-          className="h-10 w-10 rounded-2xl border flex items-center justify-center transition-colors duration-500"
+          className={`h-10 w-10 rounded-2xl border flex items-center justify-center transition-colors duration-500 ${getHighlight('formIcon')}`}
           style={{
             color: color || '#ED3F27',
             borderColor: `${color || '#ED3F27'}20`,
@@ -69,19 +74,19 @@ export default function ResultsPreview({
       {/* Card Center */}
       <div className="mt-6 flex flex-col">
         <span
-          className="text-3xl sm:text-4xl font-black tracking-tight font-display leading-none"
+          className={`text-3xl sm:text-4xl font-black tracking-tight font-display leading-none ${getHighlight('formVal')} ${getHighlight('formPrefix')} ${getHighlight('formSuffix')}`}
           style={{ color: color || '#ED3F27' }}
         >
           {prefix}{displayVal || '0'}{suffix}
         </span>
         
-        <h3 className="text-xs font-bold text-white uppercase tracking-tight mt-2">
+        <h3 className={`text-xs font-bold text-white uppercase tracking-tight mt-2 ${getHighlight('formLabel')}`}>
           {label || 'Metric Label'}
         </h3>
       </div>
 
       {/* Card Bottom */}
-      <p className="text-white/40 text-[10px] leading-relaxed mt-3 border-t border-white/5 pt-2 font-sans">
+      <p className={`text-white/40 text-[10px] leading-relaxed mt-3 border-t border-white/5 pt-2 font-sans ${getHighlight('formDetail')}`}>
         {detail || 'Details about the metric attribution.'}
       </p>
     </div>

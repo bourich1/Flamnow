@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
+import SubmitReview from "./SubmitReview";
 
 interface TestimonialItem {
   id: string;
@@ -14,6 +15,8 @@ interface TestimonialItem {
   metric: string;
   metric_label?: string;
   metricLabel?: string;
+  image_url?: string;
+  rating?: number;
 }
 
 interface TestimonialsProps {
@@ -21,10 +24,50 @@ interface TestimonialsProps {
 }
 
 export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
-  if (testimonials.length === 0) return null;
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = testimonials.length === 0;
+
+  const displayTestimonials = isLoading ? [
+    {
+      id: "phantom-1",
+      name: "Placeholder Name",
+      role: "Placeholder Role",
+      company: "Company",
+      quote: "Loading testimonial quote that takes up sufficient lines in this card to act as a placeholder. This will be replaced by actual data.",
+      metric: "10x",
+      metric_label: "ROI",
+      image_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+      rating: 5
+    },
+    {
+      id: "phantom-2",
+      name: "Placeholder Name",
+      role: "Placeholder Role",
+      company: "Company",
+      quote: "Loading testimonial quote that takes up sufficient lines in this card to act as a placeholder. This will be replaced by actual data.",
+      metric: "10x",
+      metric_label: "ROI",
+      image_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+      rating: 5
+    },
+    {
+      id: "phantom-3",
+      name: "Placeholder Name",
+      role: "Placeholder Role",
+      company: "Company",
+      quote: "Loading testimonial quote that takes up sufficient lines in this card to act as a placeholder. This will be replaced by actual data.",
+      metric: "10x",
+      metric_label: "ROI",
+      image_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
+      rating: 5
+    }
+  ] : testimonials;
 
   // Map database testimonials to match Column schema (injecting beautiful Unsplash fallback portraits since DB schema doesn't store avatar URIs)
-  const dbMappedTestimonials = testimonials.map((t, index) => {
+  const dbMappedTestimonials = displayTestimonials.map((t, index) => {
     const fallbackPortraits = [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80",
@@ -34,8 +77,9 @@ export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
     return {
       text: t.quote,
       name: t.name,
-      role: `${t.role}, ${t.company} (${t.metric} ${t.metric_label || t.metricLabel || ''})`,
-      image: fallbackPortraits[index % fallbackPortraits.length]
+      role: `${t.role}${t.company ? `, ${t.company}` : ''} ${t.metric ? `(${t.metric} ${t.metric_label || t.metricLabel || ''})` : ''}`,
+      image: t.image_url || fallbackPortraits[index % fallbackPortraits.length],
+      rating: t.rating || 5
     };
   });
 
@@ -65,11 +109,16 @@ export default function Testimonials({ testimonials = [] }: TestimonialsProps) {
         />
 
         {/* Scrolling Columns Testimonials Marquee with CSS Gradient Masking */}
-        <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[740px] overflow-hidden w-full select-none">
-          <TestimonialsColumn testimonials={firstColumn} duration={25} />
-          <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={35} />
-          <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={30} />
-        </div>
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[740px] overflow-hidden w-full select-none">
+            <TestimonialsColumn testimonials={firstColumn} duration={25} />
+            <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={35} />
+            <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={30} />
+          </div>
+        </phantom-ui>
+
+        {/* Feedback Button & Modal */}
+        <SubmitReview />
       </Container>
     </section>
   );

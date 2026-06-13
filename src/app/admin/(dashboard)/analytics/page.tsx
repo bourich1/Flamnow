@@ -171,57 +171,7 @@ export default function AnalyticsAdminPage() {
     }
   }
 
-  const handleSimulateEvents = async () => {
-    setActionLoading(true)
-    try {
-      const paths = ['/', '/projects', '/services', '/about', '/contact', '/projects/volt-audio', '/projects/vortex-pay']
-      const elements = ['hero-cta', 'navbar-about', 'service-branding-card', 'contact-submit-btn', 'footer-newsletter']
-      const referrersList = ['Direct', 'https://google.com', 'https://instagram.com', 'https://linkedin.com', 'https://x.com', 'https://news.ycombinator.com']
-      const browsers = ['Chrome', 'Safari', 'Firefox', 'Edge']
-      const devices = ['Desktop', 'Mobile', 'Tablet']
-      
-      const sessions = Array.from({ length: 8 }, () => 'sess_' + Math.random().toString(36).substring(2, 9))
-      const dummyEvents = []
-      
-      for (let i = 0; i < 45; i++) {
-        const eventType = Math.random() > 0.4 ? 'page_view' : (Math.random() > 0.25 ? 'element_click' : 'form_submit')
-        const randomPath = paths[Math.floor(Math.random() * paths.length)]
-        const randomSession = sessions[Math.floor(Math.random() * sessions.length)]
-        const hoursAgo = Math.random() * 24
-        
-        let metadata: any = {
-          device: devices[Math.floor(Math.random() * devices.length)],
-          browser: browsers[Math.floor(Math.random() * browsers.length)],
-          referrer: referrersList[Math.floor(Math.random() * referrersList.length)]
-        }
 
-        if (eventType === 'element_click') {
-          metadata.element_id = elements[Math.floor(Math.random() * elements.length)]
-        } else if (eventType === 'form_submit') {
-          metadata.form_id = 'contact_form'
-        }
-
-        dummyEvents.push({
-          session_id: randomSession,
-          event_name: eventType,
-          page_path: randomPath,
-          metadata: metadata,
-          created_at: new Date(Date.now() - hoursAgo * 60 * 60 * 1000).toISOString()
-        })
-      }
-
-      const { error } = await supabase
-        .from('analytics_events')
-        .insert(dummyEvents)
-
-      if (error) throw error
-      fetchAnalytics()
-    } catch (err: any) {
-      alert(err.message || 'Error simulating analytics events')
-    } finally {
-      setActionLoading(false)
-    }
-  }
 
   const totalDevices = deviceStats.Desktop + deviceStats.Mobile + deviceStats.Tablet
 
@@ -251,15 +201,6 @@ export default function AnalyticsAdminPage() {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
-
-          <button
-            onClick={handleSimulateEvents}
-            disabled={actionLoading}
-            className="flex items-center gap-2 border border-[#00E5FF]/20 bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer disabled:opacity-50 font-mono"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Simulate Traffic</span>
-          </button>
         </div>
       </div>
 
@@ -273,15 +214,8 @@ export default function AnalyticsAdminPage() {
           <Activity className="h-10 w-10 text-muted-text/30 mx-auto mb-3" />
           <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">No Telemetry Logs Found</h3>
           <p className="text-xs text-muted-text max-w-sm mx-auto mt-2">
-            The analytics table is empty. Click below to inject a simulated batch of user session traces.
+            The analytics table is empty. It will populate automatically once real users visit the site.
           </p>
-          <button
-            onClick={handleSimulateEvents}
-            className="mt-6 flex items-center gap-2 border border-border hover:border-white/20 bg-surface-base px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 mx-auto cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-[#00E5FF]" />
-            <span>Generate Mock Activity</span>
-          </button>
         </div>
       ) : (
         <div className="space-y-8">

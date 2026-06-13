@@ -139,7 +139,8 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
   const brandColor = project.color || "#ED3F27";
   const resultsList = Array.isArray(project.results) ? project.results : [];
   const tagsList = Array.isArray(project.tags) ? project.tags : [];
-  const gallery = categoryGalleries[project.category] || [];
+  const fallbackGallery = categoryGalleries[project.category] || [];
+  const gallery = Array.isArray(project.gallery) && project.gallery.length > 0 ? project.gallery : fallbackGallery;
 
   return (
     <div className="bg-[#111111] min-h-screen pt-32 pb-24 px-6 md:px-12 overflow-hidden relative">
@@ -312,7 +313,7 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
             {/* Bento-style Grid Layout */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {gallery.map((item, idx) => (
+              {gallery.map((item: any, idx: number) => (
                 <div
                   key={idx}
                   className={`group relative rounded-card overflow-hidden border border-white/10 ${item.aspect}`}

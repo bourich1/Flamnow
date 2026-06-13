@@ -5,7 +5,7 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 
 export default function CustomCursor() {
-  const { cursorType, cursorText } = useCursor();
+  const { cursorType, cursorText, cursorImage } = useCursor();
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
 
@@ -82,6 +82,12 @@ export default function CustomCursor() {
       height: 44,
       backgroundColor: "rgba(237, 63, 39, 0.1)",
       border: "1.5px solid #ED3F27",
+    },
+    image: {
+      width: 64,
+      height: 64,
+      backgroundColor: "rgba(255, 255, 255, 0.0)",
+      border: "0px solid transparent",
     }
   };
 
@@ -102,6 +108,10 @@ export default function CustomCursor() {
     red: {
       scale: 1,
       backgroundColor: "#ED3F27",
+    },
+    image: {
+      scale: 0,
+      backgroundColor: "transparent",
     }
   };
 
@@ -109,7 +119,7 @@ export default function CustomCursor() {
     <>
       {/* 1. Outer Ring (Trails behind with damping physics) */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-9999 flex items-center justify-center rounded-full -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+        className={`pointer-events-none fixed top-0 left-0 z-[9999] flex items-center justify-center rounded-full -translate-x-1/2 -translate-y-1/2 ${cursorType === "image" ? "" : "mix-blend-difference"}`}
         style={{
           x: ringXSpring,
           y: ringYSpring,
@@ -124,11 +134,14 @@ export default function CustomCursor() {
             {cursorText}
           </span>
         )}
+        {cursorType === "image" && cursorImage && (
+          <img src={cursorImage.startsWith('/') ? cursorImage : `/${cursorImage}`} alt="cursor" className="w-16 h-16 object-contain pointer-events-none opacity-100" />
+        )}
       </motion.div>
 
       {/* 2. Inner Dot (Sits exactly at cursor point, super snappy) */}
       <motion.div
-        className="pointer-events-none fixed top-0 left-0 z-9999 h-2 w-2 rounded-full -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+        className={`pointer-events-none fixed top-0 left-0 z-[9999] h-2 w-2 rounded-full -translate-x-1/2 -translate-y-1/2 ${cursorType === "image" ? "hidden" : "mix-blend-difference"}`}
         style={{
           x: dotXSpring,
           y: dotYSpring,

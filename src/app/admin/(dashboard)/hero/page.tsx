@@ -12,6 +12,7 @@ export default function HeroAdminPage() {
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [focusedField, setFocusedField] = useState<string | null>(null)
 
   // Form states
   const [badge, setBadge] = useState('')
@@ -217,6 +218,8 @@ export default function HeroAdminPage() {
                 <input
                   type="text"
                   value={badge}
+                      onFocus={() => setFocusedField('badge')}
+                      onBlur={() => setFocusedField(null)}
                   onChange={(e) => setBadge(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white placeholder-white/20 focus:outline-none focus:border-[#ED3F27]/50 transition-all font-mono"
                 />
@@ -234,6 +237,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={title1}
+                      onFocus={() => setFocusedField('title1')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setTitle1(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                   />
@@ -249,6 +254,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={titleStroke}
+                      onFocus={() => setFocusedField('titleStroke')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setTitleStroke(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none font-bold"
                   />
@@ -264,6 +271,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={title2}
+                      onFocus={() => setFocusedField('title2')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setTitle2(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                   />
@@ -281,6 +290,8 @@ export default function HeroAdminPage() {
                 <textarea
                   rows={4}
                   value={description}
+                      onFocus={() => setFocusedField('description')}
+                      onBlur={() => setFocusedField(null)}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none resize-none"
                 />
@@ -304,6 +315,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={primaryBtnText}
+                      onFocus={() => setFocusedField('primaryBtnText')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setPrimaryBtnText(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                   />
@@ -319,6 +332,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={primaryBtnUrl}
+                      onFocus={() => setFocusedField('primaryBtnUrl')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setPrimaryBtnUrl(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none font-mono"
                   />
@@ -336,6 +351,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={secondaryBtnText}
+                      onFocus={() => setFocusedField('secondaryBtnText')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSecondaryBtnText(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                   />
@@ -348,6 +365,8 @@ export default function HeroAdminPage() {
                   <input
                     type="text"
                     value={secondaryBtnUrl}
+                      onFocus={() => setFocusedField('secondaryBtnUrl')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSecondaryBtnUrl(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none font-mono"
                   />
@@ -373,6 +392,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={speedCardTitle}
+                      onFocus={() => setFocusedField('speedCardTitle')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setSpeedCardTitle(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -382,6 +403,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={speedCardValue}
+                      onFocus={() => setFocusedField('speedCardValue')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setSpeedCardValue(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -391,6 +414,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={speedCardSub}
+                      onFocus={() => setFocusedField('speedCardSub')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setSpeedCardSub(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none font-mono"
                     />
@@ -407,6 +432,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={roiCardTitle}
+                      onFocus={() => setFocusedField('roiCardTitle')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setRoiCardTitle(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -416,6 +443,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={roiCardValue}
+                      onFocus={() => setFocusedField('roiCardValue')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setRoiCardValue(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -432,6 +461,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={ctrCardTitle}
+                      onFocus={() => setFocusedField('ctrCardTitle')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setCtrCardTitle(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -441,6 +472,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={ctrCardValue}
+                      onFocus={() => setFocusedField('ctrCardValue')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setCtrCardValue(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none"
                     />
@@ -450,6 +483,8 @@ export default function HeroAdminPage() {
                     <input
                       type="text"
                       value={ctrCardSub}
+                      onFocus={() => setFocusedField('ctrCardSub')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setCtrCardSub(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-white/5 bg-[#0b0b0b] text-xs text-white focus:outline-none font-mono"
                     />
@@ -512,6 +547,7 @@ export default function HeroAdminPage() {
               ctr_card_title={ctrCardTitle}
               ctr_card_value={ctrCardValue}
               ctr_card_sub={ctrCardSub}
+              focusedField={focusedField}
             />
           </div>
 

@@ -23,10 +23,12 @@ export default function ResultsAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   const [statsList, setStatsList] = useState<ResultItem[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
 
   // Form States
   const [formId, setFormId] = useState('')
@@ -56,9 +58,6 @@ export default function ResultsAdminPage() {
 
       if (data && data.value) {
         setStatsList(data.value || [])
-        if (data.value.length > 0) {
-          selectStatForEdit(data.value[0])
-        }
       }
     } catch (err) {
       console.error('Error fetching results data:', err)
@@ -80,6 +79,7 @@ export default function ResultsAdminPage() {
     setFormColor(stat.color)
     setFormDetail(stat.detail)
     setValidationErrors({})
+    setShowForm(true)
   }
 
   const handleAddNew = () => {
@@ -95,6 +95,7 @@ export default function ResultsAdminPage() {
     setFormColor('#ED3F27')
     setFormDetail('Attributed value metrics outline.')
     setValidationErrors({})
+    setShowForm(true)
   }
 
   const validateForm = () => {
@@ -128,13 +129,10 @@ export default function ResultsAdminPage() {
 
       if (error) throw error
       
-      setStatsList(updatedList)
-      setSuccessMsg('Statistic deleted successfully.')
-      if (updatedList.length > 0) {
-        selectStatForEdit(updatedList[0])
-      } else {
-        handleAddNew()
-      }
+      setStatsList(updatedList)      
+      setSuccessMsg(editingId ? 'Statistic updated successfully.' : 'New statistic created.')
+      if (!editingId) setEditingId(formId)
+      setShowForm(false)
       setTimeout(() => setSuccessMsg(''), 3000)
     } catch (err: any) {
       setErrorMsg(err.message || 'Error deleting statistic')
@@ -231,10 +229,10 @@ export default function ResultsAdminPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* List + Active Form Editor (Left) */}
-          <div className="lg:col-span-7 space-y-6">
+          {/* Main List Selector + Form Editor (Left column) */}
+          <div className={`space-y-6 ${showForm ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
             
-            {/* Horizontal Stats List */}
+            {/* Horizontal Stats Selector */}
             <div className="flex flex-wrap gap-2.5">
               {statsList.map((stat) => (
                 <button
@@ -247,28 +245,37 @@ export default function ResultsAdminPage() {
                   }`}
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: stat.color }} />
-                  <span>{stat.label} ({stat.prefix}{stat.displayVal}{stat.suffix})</span>
-                  {statsList.length > 1 && (
-                    <span 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(stat.id);
-                      }}
-                      className="ml-1 p-0.5 hover:text-red-400 rounded transition-colors"
-                      title="Delete Stat"
-                    >
-                      ×
-                    </span>
-                  )}
+                  <span>{stat.label}</span>
                 </button>
               ))}
             </div>
 
-            {/* Form Editor card */}
+            {/* Split Form Editor Card */}
+            {showForm && (
             <form onSubmit={handleSave} className="bg-surface-base border border-border-theme p-6 rounded-2xl space-y-5">
-              <h3 className="text-xs font-mono uppercase tracking-widest text-primary font-bold border-b border-border-theme pb-2">
-                {editingId ? 'Edit Active Statistic' : 'New Statistic Config'}
-              </h3>
+              <div className="flex items-center justify-between border-b border-border-theme pb-2">
+                <h3 className="text-xs font-mono uppercase tracking-widest text-[#00E5FF] font-bold">
+                  {editingId ? 'Edit Selected Statistic' : 'Register New Metric'}
+                </h3>
+                <div className="flex items-center gap-4">
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={handleAddNew}
+                      className="text-[10px] font-mono text-primary hover:underline"
+                    >
+                      + Create New Instead
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    className="text-[10px] font-mono text-white/50 hover:text-white"
+                  >
+                    Close [X]
+                  </button>
+                </div>
+              </div>
 
               {successMsg && (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-xl p-3 flex items-start gap-2">
@@ -293,6 +300,8 @@ export default function ResultsAdminPage() {
                   type="text"
                   required
                   value={formLabel}
+                      onFocus={() => setFocusedField('formLabel')}
+                      onBlur={() => setFocusedField(null)}
                   onChange={(e) => setFormLabel(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none"
                   placeholder="e.g. Views Generated"
@@ -311,6 +320,8 @@ export default function ResultsAdminPage() {
                   <input
                     type="text"
                     value={formPrefix}
+                      onFocus={() => setFocusedField('formPrefix')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setFormPrefix(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none font-mono"
                     placeholder="e.g. $"
@@ -325,6 +336,8 @@ export default function ResultsAdminPage() {
                     type="text"
                     required
                     value={formDisplayVal}
+                      onFocus={() => setFocusedField('formDisplayVal')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setFormDisplayVal(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none font-mono"
                     placeholder="e.g. 12.8"
@@ -341,6 +354,8 @@ export default function ResultsAdminPage() {
                   <input
                     type="text"
                     value={formSuffix}
+                      onFocus={() => setFocusedField('formSuffix')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setFormSuffix(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none font-mono"
                     placeholder="e.g. M+"
@@ -357,6 +372,8 @@ export default function ResultsAdminPage() {
                   type="text"
                   required
                   value={formRawVal}
+                      onFocus={() => setFocusedField('formRawVal')}
+                      onBlur={() => setFocusedField(null)}
                   onChange={(e) => setFormRawVal(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none font-mono"
                   placeholder="e.g. 12800000"
@@ -392,12 +409,16 @@ export default function ResultsAdminPage() {
                     <input
                       type="color"
                       value={formColor}
+                      onFocus={() => setFocusedField('formColor')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setFormColor(e.target.value)}
                       className="h-9 w-9 rounded-lg bg-transparent border-0 cursor-pointer"
                     />
                     <input
                       type="text"
                       value={formColor}
+                      onFocus={() => setFocusedField('formColor')}
+                      onBlur={() => setFocusedField(null)}
                       onChange={(e) => setFormColor(e.target.value)}
                       className="flex-1 px-4 py-2 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground font-mono focus:outline-none"
                     />
@@ -414,6 +435,8 @@ export default function ResultsAdminPage() {
                   rows={3}
                   required
                   value={formDetail}
+                      onFocus={() => setFocusedField('formDetail')}
+                      onBlur={() => setFocusedField(null)}
                   onChange={(e) => setFormDetail(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground focus:outline-none resize-none font-sans"
                   placeholder="e.g. Sales spikes attributed directly to our campaign models."
@@ -439,10 +462,12 @@ export default function ResultsAdminPage() {
                 </button>
               </div>
             </form>
+            )}
           </div>
 
-          {/* Live Preview (Right) */}
-          <div className="lg:col-span-5 lg:sticky lg:top-8 space-y-4">
+          {/* Right column: Preview */}
+          {showForm && (
+          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
             <div className="flex items-center justify-between border-b border-border-theme pb-2">
               <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-muted-text">
                 Live Metric Card Preview
@@ -462,9 +487,10 @@ export default function ResultsAdminPage() {
               iconName={formIconName}
               color={formColor}
               detail={formDetail}
+            focusedField={focusedField}
             />
           </div>
-
+          )}
         </div>
       )}
     </div>

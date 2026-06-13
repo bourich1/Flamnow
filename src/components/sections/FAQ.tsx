@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
@@ -51,7 +51,18 @@ export default function FAQ({ faqs = [] }: FAQProps) {
     );
   }, { scope: containerRef, dependencies: [faqs] });
 
-  if (faqs.length === 0) return null;
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = faqs.length === 0;
+
+  const displayFaqs = isLoading ? [
+    { question: "Loading placeholder question for FAQ 1?", answer: "This is a placeholder answer..." },
+    { question: "Loading placeholder question for FAQ 2?", answer: "This is a placeholder answer..." },
+    { question: "Loading placeholder question for FAQ 3?", answer: "This is a placeholder answer..." },
+    { question: "Loading placeholder question for FAQ 4?", answer: "This is a placeholder answer..." }
+  ] : faqs;
 
   return (
     <section ref={containerRef} className="relative bg-[#111111] py-space-6xl border-b border-white/5 overflow-hidden">
@@ -65,9 +76,10 @@ export default function FAQ({ faqs = [] }: FAQProps) {
           align="center"
         />
 
-        <div className="flex flex-col divide-y divide-border mt-space-md">
-          {faqs.map((faq, idx) => {
-            const isOpen = openFaq === idx;
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="flex flex-col divide-y divide-border mt-space-md">
+            {displayFaqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
             const qText = faq.question || faq.q || "";
             const aText = faq.answer || faq.a || "";
             return (
@@ -104,7 +116,8 @@ export default function FAQ({ faqs = [] }: FAQProps) {
               </div>
             );
           })}
-        </div>
+          </div>
+        </phantom-ui>
       </Container>
     </section>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useCursor } from "@/context/CursorContext";
 import Container from "../layout/Container";
 import SectionHeader from "../ui/SectionHeader";
-import { Sparkles, Target, Film, Laptop, Users, Check, ArrowUpRight } from "lucide-react";
+import { Check, ArrowUpRight } from "lucide-react";
+import { getIconByName } from "@/lib/iconMap";
 import Link from "next/link";
 
 export type Feature = string;
@@ -18,41 +19,66 @@ export interface ServiceItem {
   metric_label: string | null;
   metric_value: string | null;
   color: string;
+  icon_name?: string;
 }
 
 export interface ServicesProps {
   services?: ServiceItem[];
 }
 
-// Helper to map string to Lucide icon
-const getIcon = (id: string) => {
-  switch (id) {
-    case "branding":
-      return Sparkles;
-    case "paid-ads":
-      return Target;
-    case "content-creation":
-      return Film;
-    case "website-design":
-      return Laptop;
-    case "social-media":
-      return Users;
-    default:
-      return Sparkles;
-  }
-};
+
 
 export default function Services({ services = [] }: ServicesProps) {
   const { setCursorType } = useCursor();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (services.length === 0) return null;
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = services.length === 0;
+
+  const displayServices = isLoading ? [
+    {
+      id: "branding",
+      title: "Loading Service",
+      tagline: "Loading tagline",
+      description: "Loading description that occupies a couple of lines for the skeleton.",
+      features: ["Feature 1 placeholder", "Feature 2 placeholder", "Feature 3 placeholder"],
+      metric_label: "Loading Metric",
+      metric_value: "0.0x",
+      color: "#ED3F27",
+      icon_name: "Sparkles"
+    },
+    {
+      id: "digital",
+      title: "Loading Service",
+      tagline: "Loading tagline",
+      description: "Loading description that occupies a couple of lines for the skeleton.",
+      features: ["Feature 1 placeholder", "Feature 2 placeholder", "Feature 3 placeholder"],
+      metric_label: "Loading Metric",
+      metric_value: "0.0x",
+      color: "#ED3F27",
+      icon_name: "Laptop"
+    },
+    {
+      id: "campaigns",
+      title: "Loading Service",
+      tagline: "Loading tagline",
+      description: "Loading description that occupies a couple of lines for the skeleton.",
+      features: ["Feature 1 placeholder", "Feature 2 placeholder", "Feature 3 placeholder"],
+      metric_label: "Loading Metric",
+      metric_value: "0.0x",
+      color: "#ED3F27",
+      icon_name: "Target"
+    }
+  ] : services;
 
   // Determine repetition count based on list size for a smooth marquee loop
-  const repeatCount: number = services.length < 3 ? 8 : (services.length < 6 ? 4 : 2);
-  const repeatedServices: ServiceItem[] = Array(repeatCount).fill(services).flat() as ServiceItem[];
+  const repeatCount: number = displayServices.length < 3 ? 8 : (displayServices.length < 6 ? 4 : 2);
+  const repeatedServices: ServiceItem[] = Array(repeatCount).fill(displayServices).flat() as ServiceItem[];
   const translationPercentage: number = -(100 / repeatCount);
-  const animationDuration: number = services.length * 8; // 8s per item in a single set
+  const animationDuration: number = displayServices.length * 8; // 8s per item in a single set
 
   return (
     <section ref={containerRef} className="relative bg-[#111111] py-space-6xl border-b border-white/5 overflow-hidden">
@@ -69,31 +95,32 @@ export default function Services({ services = [] }: ServicesProps) {
         />
 
         {/* Services Scroll Carousel Wrapper */}
-        <div className="relative w-full overflow-hidden py-4 select-none">
-          {/* Visual fading overlays on left and right for premium aesthetics */}
-          <div className="absolute top-0 left-0 w-20 sm:w-32 h-full bg-gradient-to-r from-[#111111] to-transparent z-20 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-20 sm:w-32 h-full bg-gradient-to-l from-[#111111] to-transparent z-20 pointer-events-none" />
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="relative w-full py-8 select-none group">
+            {/* Visual fading overlays on left and right for premium aesthetics */}
+            <div className="absolute top-0 left-0 w-8 sm:w-16 h-full bg-gradient-to-r from-[#111111] to-transparent z-20 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-8 sm:w-16 h-full bg-gradient-to-l from-[#111111] to-transparent z-20 pointer-events-none" />
 
-          <div
-            className="flex w-max gap-6 pr-6 animate-services-marquee"
-            style={{
-              "--marquee-translate": `${translationPercentage}%`,
-              "--marquee-duration": `${animationDuration}s`,
-            } as React.CSSProperties}
-          >
-            {repeatedServices.map((service: ServiceItem, index: number) => {
-              const IconComponent = getIcon(service.id);
+            <div
+              className={`flex w-max gap-6 pr-6 ${!isLoading && "animate-services-marquee"}`}
+              style={{
+                "--marquee-translate": `${translationPercentage}%`,
+                "--marquee-duration": `${animationDuration}s`,
+              } as React.CSSProperties}
+            >
+              {repeatedServices.map((service: ServiceItem, index: number) => {
+              const IconComponent = getIconByName(service.icon_name);
               return (
                 <Link
                   key={`${service.id}-${index}`}
-                  href={`/services/${service.id}`}
-                  className="service-carousel-slide w-[320px] shrink-0 group relative bg-[#121212] border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[440px] overflow-hidden transition-all duration-500 hover:bg-[#1e1e1e] hover:-translate-y-2 hover:border-white/15 cursor-pointer"
+                  href="/services"
+                  className="service-carousel-slide w-[320px] shrink-0 group/card relative bg-[#121212] border border-white/5 rounded-card p-space-lg flex flex-col justify-between min-h-[440px] overflow-hidden transition-all duration-500 hover:bg-[#1e1e1e] hover:-translate-y-2 hover:border-white/15 cursor-pointer"
                   onMouseEnter={() => setCursorType("hover")}
                   onMouseLeave={() => setCursorType("default")}
                 >
                   {/* Radial Glow Overlay driven by service accent color */}
                   <div
-                    className="absolute inset-0 -z-10 bg-radial transition-all duration-700 opacity-0 group-hover:opacity-100 pointer-events-none"
+                    className="absolute inset-0 -z-10 bg-radial transition-all duration-700 opacity-0 group-hover/card:opacity-100 pointer-events-none"
                     style={{
                       backgroundImage: `radial-gradient(circle at top right, ${service.color}15 0%, transparent 60%)`,
                     }}
@@ -128,7 +155,7 @@ export default function Services({ services = [] }: ServicesProps) {
                     <span className="text-[10px] font-bold uppercase tracking-widest text-primary-base font-mono">
                       {service.tagline}
                     </span>
-                    <h3 className="text-2xl font-black text-white-base uppercase tracking-tight font-display group-hover:text-primary-base transition-colors duration-200">
+                    <h3 className="text-2xl font-black text-white-base uppercase tracking-tight font-display group-hover/card:text-primary-base transition-colors duration-200">
                       {service.title}
                     </h3>
                     <p className="text-white-base/60 text-xs sm:text-sm leading-relaxed mt-1">
@@ -150,7 +177,7 @@ export default function Services({ services = [] }: ServicesProps) {
                   </div>
 
                   {/* Link hover arrow action */}
-                  <div className="absolute bottom-space-lg right-space-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-space-lg right-space-lg opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
                     <div className="h-8 w-8 rounded-btn border border-white/10 flex items-center justify-center">
                       <ArrowUpRight className="h-4 w-4 text-white-base" />
                     </div>
@@ -158,8 +185,9 @@ export default function Services({ services = [] }: ServicesProps) {
                 </Link>
               );
             })}
+            </div>
           </div>
-        </div>
+        </phantom-ui>
       </Container>
     </section>
   );

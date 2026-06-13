@@ -7,7 +7,6 @@ import {
   HelpCircle, 
   Plus, 
   Search, 
-  Edit2, 
   Trash2, 
   Check, 
   Loader2, 
@@ -28,13 +27,14 @@ export default function FAQAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [showForm, setShowForm] = useState(false)
   
-  // Form States
   const [formQuestion, setFormQuestion] = useState('')
   const [formAnswer, setFormAnswer] = useState('')
 
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const [focusedField, setFocusedField] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -52,12 +52,6 @@ export default function FAQAdminPage() {
       if (error) throw error
       const fList = data || []
       setFaqs(fList)
-
-      if (fList.length > 0) {
-        selectFaq(fList[0])
-      } else {
-        handleAddNew()
-      }
     } catch (err) {
       console.error('Error fetching FAQs:', err)
     } finally {
@@ -67,11 +61,15 @@ export default function FAQAdminPage() {
 
   const selectFaq = (faq: FAQItem) => {
     setEditingId(faq.id)
-    setFormQuestion(faq.question)
-    setFormAnswer(faq.answer)
+    
+    setFormQuestion(faq.question || '')
+    setFormAnswer(faq.answer || '')
+
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+
+    setShowForm(true)
   }
 
   const handleAddNew = () => {
@@ -81,6 +79,8 @@ export default function FAQAdminPage() {
     setValidationErrors({})
     setErrorMsg('')
     setSuccessMsg('')
+
+    setShowForm(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -96,11 +96,7 @@ export default function FAQAdminPage() {
       const remaining = faqs.filter(f => f.id !== id)
       setFaqs(remaining)
       setSuccessMsg('FAQ deleted successfully.')
-      if (remaining.length > 0) {
-        selectFaq(remaining[0])
-      } else {
-        handleAddNew()
-      }
+      setShowForm(false)
       setTimeout(() => setSuccessMsg(''), 3000)
     } catch (err: any) {
       alert(err.message || 'Error deleting FAQ')
@@ -112,7 +108,7 @@ export default function FAQAdminPage() {
   const validateForm = () => {
     const errors: Record<string, string> = {}
     if (!formQuestion.trim()) errors.question = 'Question is required.'
-    if (!formAnswer.trim()) errors.answer = 'Answer description is required.'
+    if (!formAnswer.trim()) errors.answer = 'Answer is required.'
 
     if (formQuestion.length > 150) errors.question = 'Question must be 150 characters or less.'
     if (formAnswer.length > 800) errors.answer = 'Answer must be 800 characters or less.'
@@ -127,14 +123,14 @@ export default function FAQAdminPage() {
     setErrorMsg('')
 
     if (!validateForm()) {
-      setErrorMsg('Please resolve form errors.')
+      setErrorMsg('Please correct validation errors.')
       return
     }
 
     setActionLoading(true)
     const payload = {
       question: formQuestion.trim(),
-      answer: formAnswer.trim()
+      answer: formAnswer.trim(),
     }
 
     try {
@@ -154,20 +150,10 @@ export default function FAQAdminPage() {
       }
 
       // Refresh list
-      const { data } = await supabase
-        .from('faqs')
-        .select('*')
-        .order('created_at', { ascending: true })
-      setFaqs(data || [])
+      fetchFaqs()
       
-      // Select newly updated/created
-      if (data && data.length > 0) {
-        if (editingId) {
-          const matched = data.find(f => f.id === editingId)
-          if (matched) selectFaq(matched)
-        } else {
-          selectFaq(data[data.length - 1])
-        }
+      if (!editingId) {
+        setShowForm(false)
       }
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err: any) {
@@ -177,10 +163,12 @@ export default function FAQAdminPage() {
     }
   }
 
-  const filteredFaqs = faqs.filter(f => 
-    f.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    f.answer.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredFaqs = faqs.filter(f => {
+    const q = f.question || ''
+    const a = f.answer || ''
+    return q.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           a.toLowerCase().includes(searchQuery.toLowerCase())
+  })
 
   return (
     <div className="space-y-8 select-none">
@@ -195,7 +183,7 @@ export default function FAQAdminPage() {
             FAQ Management
           </h2>
           <p className="text-xs text-muted-text mt-1">
-            Publish questions and detailed responses. Previews update in real-time.
+            Publish questions and detailed responses.
           </p>
         </div>
 
@@ -219,7 +207,7 @@ export default function FAQAdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Main List Selector + Form Editor (Left column) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className={`space-y-6 ${showForm ? 'lg:col-span-8' : 'lg:col-span-12'}`}>
             
             {/* Horizontal FAQ Selector */}
             <div className="bg-surface-base border border-border-theme p-4 rounded-2xl space-y-4">
@@ -234,14 +222,21 @@ export default function FAQAdminPage() {
                     type="text"
                     placeholder="Search FAQs..."
                     value={searchQuery}
+                      onFocus={() => setFocusedField('searchQuery')}
+                      onBlur={() => setFocusedField(null)}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border-theme bg-bg-base text-[11px] text-foreground focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {filteredFaqs.map((faq) => (
+              {filteredFaqs.length === 0 ? (
+                <div className="h-32 border border-dashed border-border-theme rounded-xl flex flex-col items-center justify-center text-center p-6 bg-surface-base">
+                  <p className="text-xs text-muted-text/50">No FAQs found matching query.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {filteredFaqs.map((faq) => (
                   <div 
                     key={faq.id}
                     onClick={() => selectFaq(faq)}
@@ -269,25 +264,36 @@ export default function FAQAdminPage() {
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Split Form Editor Card */}
+            {/* Form Editor Card */}
+            {showForm && (
             <form onSubmit={handleSubmit} className="bg-surface-base border border-border-theme p-6 rounded-2xl space-y-5">
               <div className="flex items-center justify-between border-b border-border-theme pb-2">
                 <h3 className="text-xs font-mono uppercase tracking-widest text-[#FF9F0A] font-bold">
                   {editingId ? 'Edit Selected FAQ' : 'Register New FAQ'}
                 </h3>
-                {editingId && (
+                <div className="flex items-center gap-4">
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={handleAddNew}
+                      className="text-[10px] font-mono text-[#00E5FF] hover:underline"
+                    >
+                      + Create New Instead
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={handleAddNew}
-                    className="text-[10px] font-mono text-primary hover:underline"
+                    onClick={() => setShowForm(false)}
+                    className="text-[10px] font-mono text-white/50 hover:text-white"
                   >
-                    + Switch to New FAQ
+                    Close [X]
                   </button>
-                )}
+                </div>
               </div>
 
               {successMsg && (
@@ -304,43 +310,49 @@ export default function FAQAdminPage() {
                 </div>
               )}
 
-              {/* Question */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                  Question *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. How fast does Flamnow execute projects?"
-                  value={formQuestion}
-                  onChange={(e) => setFormQuestion(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#FF9F0A]/50 font-bold"
-                />
-                {validationErrors.question && (
-                  <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.question}</p>
-                )}
+              <div className="space-y-5">
+                {/* Question */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                    Question *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. How fast does Flamnow execute projects?"
+                    value={formQuestion}
+                        onFocus={() => setFocusedField('formQuestion')}
+                        onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormQuestion(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#FF9F0A]/50 font-bold transition-all"
+                  />
+                  {validationErrors.question && (
+                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.question}</p>
+                  )}
+                </div>
+
+                {/* Answer */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
+                    Detailed Answer Response *
+                  </label>
+                  <textarea
+                    required
+                    rows={6}
+                    placeholder="Provide a detailed and helpful response response..."
+                    value={formAnswer}
+                        onFocus={() => setFocusedField('formAnswer')}
+                        onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormAnswer(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#FF9F0A]/50 resize-none leading-relaxed transition-all"
+                  />
+                  {validationErrors.answer && (
+                    <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.answer}</p>
+                  )}
+                </div>
               </div>
 
-              {/* Answer */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-text block font-mono">
-                  Detailed Answer Response *
-                </label>
-                <textarea
-                  required
-                  rows={6}
-                  placeholder="Provide a detailed and helpful response response..."
-                  value={formAnswer}
-                  onChange={(e) => setFormAnswer(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border-theme bg-bg-base text-xs text-foreground placeholder-white/20 focus:outline-none focus:border-[#FF9F0A]/50 resize-none leading-relaxed"
-                />
-                {validationErrors.answer && (
-                  <p className="text-red-400 text-[10px] font-mono mt-0.5">{validationErrors.answer}</p>
-                )}
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   type="submit"
                   disabled={actionLoading}
@@ -356,10 +368,12 @@ export default function FAQAdminPage() {
               </div>
 
             </form>
+            )}
           </div>
 
-          {/* Real-time Preview (Right column) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-8 space-y-4">
+          {/* Right column: Preview & Code */}
+          {showForm && (
+          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
             <div className="flex items-center justify-between border-b border-border-theme pb-2">
               <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-muted-text">
                 Live Accordion Preview
@@ -369,12 +383,15 @@ export default function FAQAdminPage() {
               </span>
             </div>
 
-            <FAQPreview
-              question={formQuestion}
-              answer={formAnswer}
-            />
+            <div>
+              <FAQPreview
+                question={formQuestion}
+                answer={formAnswer}
+                focusedField={focusedField}
+              />
+            </div>
           </div>
-
+          )}
         </div>
       )}
     </div>

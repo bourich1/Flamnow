@@ -5,26 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCursor } from "@/context/CursorContext";
 import Container from "@/components/layout/Container";
 import MagneticButton from "@/components/ui/MagneticButton";
-import { Sparkles, Target, Film, Laptop, Users, Check, ChevronDown, CheckCircle, ArrowUpRight } from "lucide-react";
+import {
+  Sparkles,
+  Check,
+  ChevronDown,
+  CheckCircle,
+  ArrowUpRight,
+} from "lucide-react";
+import { getIconByName } from "@/lib/iconMap";
 import Link from "next/link";
-
-// Helper to map string to Lucide icon
-const getIcon = (id: string) => {
-  switch (id) {
-    case "branding":
-      return Sparkles;
-    case "paid-ads":
-      return Target;
-    case "content-creation":
-      return Film;
-    case "website-design":
-      return Laptop;
-    case "social-media":
-      return Users;
-    default:
-      return Sparkles;
-  }
-};
 
 const defaultPackages = [
   {
@@ -78,6 +67,7 @@ interface ServicesClientProps {
   services: any[];
   faqs: any[];
   packages?: any[];
+  
 }
 
 export default function ServicesClient({ services, faqs, packages = [] }: ServicesClientProps) {
@@ -129,7 +119,7 @@ export default function ServicesClient({ services, faqs, packages = [] }: Servic
               } as React.CSSProperties}
             >
               {repeatedServices.map((service, index) => {
-                const IconComponent = getIcon(service.id);
+                const IconComponent = getIconByName(service.icon_name);
                 const mVal = service.metrics?.value || service.metric_value || "";
                 const feats = Array.isArray(service.features) ? service.features : [];
                 const benefitsList = Array.isArray(service.benefits) ? service.benefits : [];
@@ -277,16 +267,17 @@ export default function ServicesClient({ services, faqs, packages = [] }: Servic
                   </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="mt-8 pt-4 border-t border-white-base/5">
                   <MagneticButton
                     href="/contact"
-                    className={`w-full rounded-btn font-bold uppercase tracking-widest text-xs py-4 transition-colors duration-300 ${
+                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-btn font-bold uppercase tracking-widest text-xs transition-all duration-300 ${
                       pkg.popular
-                        ? "bg-primary-base hover:bg-white-base text-white-base hover:text-black"
-                        : "bg-white-base hover:bg-primary-base text-black hover:text-white-base"
+                        ? "bg-primary-base hover:bg-white-base text-white-base hover:text-black shadow-[0_0_20px_rgba(237,63,39,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
+                        : "bg-surface-base hover:bg-primary-base text-white-base border border-white-base/10 hover:border-primary-base"
                     }`}
                   >
-                    {pkg.cta}
+                    {pkg.cta || "Collaborate"}
+                    <ArrowUpRight className="h-4 w-4" />
                   </MagneticButton>
                 </div>
               </div>

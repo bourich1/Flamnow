@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useCursor } from "@/context/CursorContext";
 import MagneticButton from "../ui/MagneticButton";
 import Container from "../layout/Container";
@@ -33,26 +33,32 @@ interface HeroProps {
 }
 
 export default function Hero({ data }: HeroProps) {
-  const { setCursorType, setCursorText } = useCursor();
+  const { setCursorType, setCursorText, setCursorImage } = useCursor();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const badge = data?.badge || "Fearless Creative Agency";
-  const title1 = data?.title_1 || "We Ignite";
-  const titleStroke = data?.title_stroke || "Untamed";
-  const title2 = data?.title_2 || "Growth.";
-  const description = data?.description || "We reject lukewarm marketing formulas. Flamnow designs bold brand systems, installs speed-optimized web flagships, and launches attribution campaigns for category leaders.";
-  const primaryBtnText = data?.primary_btn_text || "Let's Stoke";
-  const primaryBtnUrl = data?.primary_btn_url || "/contact";
-  const secondaryBtnText = data?.secondary_btn_text || "Our Chronicles";
-  const secondaryBtnUrl = data?.secondary_btn_url || "/projects";
-  const speedCardTitle = data?.speed_card_title || "Flagship App";
-  const speedCardValue = data?.speed_card_value || "Load Speed: 0.4s";
-  const speedCardSub = data?.speed_card_sub || "VITALS 100%";
-  const roiCardTitle = data?.roi_card_title || "Campaign ROI";
-  const roiCardValue = data?.roi_card_value || "Attributed: 4.8x";
-  const ctrCardTitle = data?.ctr_card_title || "Ads Performance";
-  const ctrCardValue = data?.ctr_card_value || "CTR Rate: 6.2%";
-  const ctrCardSub = data?.ctr_card_sub || "+22% ABOVE BM";
+  useEffect(() => {
+    import("@aejkatappaja/phantom-ui");
+  }, []);
+
+  const isLoading = !data;
+
+  const badge = isLoading ? "Loading Badge" : data?.badge || "";
+  const title1 = isLoading ? "Loading " : data?.title_1 || "";
+  const titleStroke = isLoading ? "Title" : data?.title_stroke || "";
+  const title2 = isLoading ? " Skeleton" : data?.title_2 || "";
+  const description = isLoading ? "Loading description placeholder that takes up space while the real content is fetched." : data?.description;
+  const primaryBtnText = isLoading ? "Loading Btn" : data?.primary_btn_text;
+  const primaryBtnUrl = data?.primary_btn_url || "#";
+  const secondaryBtnText = isLoading ? "Loading Btn" : data?.secondary_btn_text;
+  const secondaryBtnUrl = data?.secondary_btn_url || "#";
+  const speedCardTitle = isLoading ? "Loading Title" : data?.speed_card_title;
+  const speedCardValue = isLoading ? "Loading Value" : data?.speed_card_value;
+  const speedCardSub = isLoading ? "Loading Sub" : data?.speed_card_sub;
+  const roiCardTitle = isLoading ? "Loading Title" : data?.roi_card_title;
+  const roiCardValue = isLoading ? "Loading Value" : data?.roi_card_value;
+  const ctrCardTitle = isLoading ? "Loading Title" : data?.ctr_card_title;
+  const ctrCardValue = isLoading ? "Loading Value" : data?.ctr_card_value;
+  const ctrCardSub = isLoading ? "Loading Sub" : data?.ctr_card_sub;
 
   useGSAP(() => {
     if (!containerRef.current) return;
@@ -138,7 +144,8 @@ export default function Hero({ data }: HeroProps) {
       <div className="absolute bottom-10 right-1/4 -z-10 h-[250px] w-[250px] md:h-[400px] md:w-[400px] rounded-full bg-white-base/5 blur-[120px] pointer-events-none" />
 
       <Container className="relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl lg:gap-space-4xl items-center">
+        <phantom-ui loading={isLoading ? true : undefined} animation="pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl lg:gap-space-4xl items-center">
           
           {/* Left Column: Headline and CTAs */}
           <div className="lg:col-span-6 flex flex-col gap-space-md items-start text-left relative z-30">
@@ -200,12 +207,12 @@ export default function Hero({ data }: HeroProps) {
           <div
             className="lg:col-span-6 relative w-full min-h-[360px] sm:min-h-[480px] md:min-h-[580px] lg:min-h-[640px] mt-8 lg:mt-0 select-none isolate overflow-hidden"
             onMouseEnter={() => {
-              setCursorType("text");
-              setCursorText("FEARLESS");
+              setCursorType("image");
+              setCursorImage("/icon-light.png");
             }}
             onMouseLeave={() => {
               setCursorType("default");
-              setCursorText("");
+              setCursorImage("");
             }}
           >
             
@@ -334,7 +341,8 @@ export default function Hero({ data }: HeroProps) {
             </div>
 
           </div>
-        </div>
+          </div>
+        </phantom-ui>
       </Container>
     </section>
   );

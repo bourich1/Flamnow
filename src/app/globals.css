@@ -206,3 +206,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
+
+
+/* Focus outline for inputs and textareas */
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 1px var(--primary) !important;
+}

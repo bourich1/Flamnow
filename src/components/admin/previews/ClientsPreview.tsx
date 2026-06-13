@@ -5,9 +5,14 @@ import { motion } from 'framer-motion'
 
 interface ClientsPreviewProps {
   clients: string[]
+  focusedField?: string | null
 }
 
-export default function ClientsPreview({ clients }: ClientsPreviewProps) {
+export default function ClientsPreview({ clients, focusedField }: ClientsPreviewProps) {
+  const getHighlight = (field: string) => {
+    return focusedField === field ? 'ring-2 ring-[#ED3F27] rounded transition-all' : ''
+  }
+
   // To make a continuous marquee, double the list if it's not empty
   const marqueeItems = [...clients, ...clients]
 
@@ -18,11 +23,11 @@ export default function ClientsPreview({ clients }: ClientsPreviewProps) {
       </h4>
 
       {clients.length === 0 ? (
-        <div className="h-24 flex items-center justify-center text-center border border-dashed border-white/10 rounded-2xl">
+        <div className={`h-24 flex items-center justify-center text-center border border-dashed border-white/10 rounded-2xl ${getHighlight('formClients')}`}>
           <span className="text-xs text-white/30 font-mono">No brand names added yet.</span>
         </div>
       ) : (
-        <div className="relative py-6 border-y border-white/5 overflow-hidden select-none bg-[#0b0b0b]">
+        <div className={`relative py-6 border-y border-white/5 overflow-hidden select-none bg-[#0b0b0b] ${getHighlight('formClients')}`}>
           {/* Fading side overlays */}
           <div className="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-[#0b0b0b] to-transparent z-10 pointer-events-none" />
           <div className="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-[#0b0b0b] to-transparent z-10 pointer-events-none" />

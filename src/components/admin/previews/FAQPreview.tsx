@@ -7,9 +7,13 @@ import { ChevronDown } from 'lucide-react'
 interface FAQPreviewProps {
   question: string
   answer: string
+  focusedField?: string | null
 }
 
-export default function FAQPreview({ question, answer }: FAQPreviewProps) {
+export default function FAQPreview({ question, answer, focusedField }: FAQPreviewProps) {
+  const getHighlight = (field: string) => {
+    return focusedField === field ? 'ring-2 ring-[#ED3F27] rounded transition-all' : ''
+  }
   const [isOpen, setIsOpen] = useState(true)
 
   return (
@@ -20,7 +24,7 @@ export default function FAQPreview({ question, answer }: FAQPreviewProps) {
           onClick={() => setIsOpen(!isOpen)}
           className="w-full flex justify-between items-center text-left text-white hover:text-[#ED3F27] transition-colors duration-300"
         >
-          <span className="text-sm sm:text-base font-bold pr-4 font-body">
+          <span className={`text-sm sm:text-base font-bold pr-4 font-body ${getHighlight('formQuestion')}`}>
             {question || 'Frequently Asked Question?'}
           </span>
           <ChevronDown
@@ -39,7 +43,7 @@ export default function FAQPreview({ question, answer }: FAQPreviewProps) {
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }}
               className="overflow-hidden"
             >
-              <p className="text-white/60 text-xs sm:text-sm leading-relaxed mt-3 pl-1 pr-4">
+              <p className={`text-white/60 text-xs sm:text-sm leading-relaxed mt-3 pl-1 pr-4 ${getHighlight('formAnswer')}`}>
                 {answer || 'Write the answer to your FAQ here.'}
               </p>
             </motion.div>
